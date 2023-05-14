@@ -10,7 +10,9 @@ public interface ItemService {
 
     void deleteItem(int userId, int itemId);
 
-    ItemDto updateItem(int userId, ItemDto itemDto);
+    ItemDto updateItem(int userId, int itemId, ItemDto itemDto);
 
     ItemDto getItem(int itemId);
+
+    List<ItemDto> searchForItems(String text);
 }

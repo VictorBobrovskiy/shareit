@@ -16,7 +16,7 @@ public class UserMapper {
         String email = userDto.getEmail();
         if (name == null) {
             name = userRepository.getUser(id).getName();
-        } else if  (email == null){
+        } else if (email == null) {
             email = userRepository.getUser(id).getEmail();
         }
         return new User(id, name, email);

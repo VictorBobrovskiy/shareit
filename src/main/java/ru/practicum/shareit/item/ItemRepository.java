@@ -13,4 +13,6 @@ interface ItemRepository {
     Item updateItem(int userId, Item item);
 
     Item getItem(int itemId);
+
+    List<Item> searchForItems(String text);
 }

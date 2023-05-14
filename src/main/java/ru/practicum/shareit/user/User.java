@@ -3,12 +3,11 @@ package ru.practicum.shareit.user;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.checkerframework.common.aliasing.qual.Unique;
-import org.springframework.stereotype.Component;
 import ru.practicum.shareit.item.Item;
 
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotNull;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -24,8 +23,8 @@ public class User {
 
     @NotNull
     private String name;
+
     @Email
-    @Unique
     @NotNull
     private String email;
 
@@ -35,5 +34,6 @@ public class User {
         this.id = id;
         this.name = name;
         this.email = email;
+        this.items = new ArrayList<>();
     }
 }

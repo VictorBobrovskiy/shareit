@@ -1,22 +1,34 @@
 package ru.practicum.shareit.item;
 
 
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Component;
+import ru.practicum.shareit.request.ItemRequest;
+
+@Component
+@RequiredArgsConstructor
 public class ItemMapper {
 
 
-    public static Item mapDtoToItem(ItemDto itemDto) {
+    private final ItemRepository itemRepository;
+
+    public Item mapDtoToItem(ItemDto itemDto) {
         return new Item(
-                itemDto.getName(),
-                itemDto.getDescription(),
-                itemDto.isAvailable());
+                itemDto.getId(),
+                itemDto.getName() != null ? itemDto.getName() : itemRepository.getItem(itemDto.getId()).getName(),
+                itemDto.getDescription() != null ? itemDto.getDescription() : itemRepository.getItem(itemDto.getId()).getDescription(),
+                itemDto.getAvailable() != null ? itemDto.getAvailable() : itemRepository.getItem(itemDto.getId()).getAvailable(),
+                itemDto.getRequestId() != 0 ? new ItemRequest(itemDto.getRequestId()) : null
+        );
     }
 
-    public static ItemDto mapItemToDto(Item item) {
+    public ItemDto mapItemToDto(Item item) {
         return new ItemDto(
+                item.getId(),
                 item.getName(),
                 item.getDescription(),
-                item.isAvailable(),
-                item.getItemRequest() != null ? item.getItemRequest().getId() : null
+                item.getAvailable(),
+                item.getItemRequest() != null ? item.getItemRequest().getId() : 0
         );
     }
 

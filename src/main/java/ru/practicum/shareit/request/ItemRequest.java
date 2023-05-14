@@ -24,4 +24,8 @@ public class ItemRequest {
     private Item item;
 
     private User user;
+
+    public ItemRequest(int id) {
+        this.id = id;
+    }
 }

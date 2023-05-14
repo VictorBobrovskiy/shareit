@@ -1,9 +1,10 @@
 package ru.practicum.shareit.item;
 
-import lombok.Data;
 import lombok.AllArgsConstructor;
-import ru.practicum.shareit.request.ItemRequest;
-import ru.practicum.shareit.user.User;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import javax.validation.constraints.NotBlank;
 
 /**
  * TODO Sprint add-controllers.
@@ -11,13 +12,19 @@ import ru.practicum.shareit.user.User;
 
 @Data
 @AllArgsConstructor
+@NoArgsConstructor
 public class ItemDto {
 
+    private int id;
+
+    @NotBlank
     private String name;
 
+    @NotBlank
     private String description;
 
-    private boolean available;
+    @NotBlank
+    private Boolean available;
 
     private int requestId;
 }

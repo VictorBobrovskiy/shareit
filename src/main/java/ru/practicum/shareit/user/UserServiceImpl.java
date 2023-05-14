@@ -5,10 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exceptions.ExistsException;
 import ru.practicum.shareit.exceptions.ValidationException;
-import ru.practicum.shareit.item.ItemMapper;
 
-
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -17,10 +14,11 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
 
-   private final UserRepository userRepository;
+    private final UserRepository userRepository;
 
     private final UserMapper userMapper;
-   private int userId = 0;
+
+    private int userId = 0;
 
 
     public List<UserDto> findAll() {
@@ -48,7 +46,7 @@ public class UserServiceImpl implements UserService {
         userRepository.delete(id);
     }
 
-    private UserDto validateUser (UserDto userDto) {
+    private UserDto validateUser(UserDto userDto) {
         if (userDto.getEmail() == null || userDto.getEmail().isBlank()) {
             throw new ValidationException("Email should not be empty");
         } else if (userRepository.findAll().stream().anyMatch(user -> user.getEmail().equals(userDto.getEmail()))) {
