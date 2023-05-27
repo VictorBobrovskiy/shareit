@@ -4,15 +4,15 @@ import java.util.List;
 
 public interface ItemService {
 
-    List<ItemDto> getItems(int userId);
+    List<ItemDto> getItems(Long userId);
 
-    ItemDto addNewItem(int userId, ItemDto itemDto);
+    ItemDto addNewItem(Long userId, ItemDto itemDto);
 
-    void deleteItem(int userId, int itemId);
+    void deleteItem(Long userId, Long itemId);
 
-    ItemDto updateItem(int userId, int itemId, ItemDto itemDto);
+    ItemDto updateItem(Long userId, Long itemId, ItemDto itemDto);
 
-    ItemDto getItem(int itemId);
+    ItemDto getItem(Long itemId);
 
     List<ItemDto> searchForItems(String text);
 }

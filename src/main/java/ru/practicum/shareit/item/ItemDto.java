@@ -3,28 +3,27 @@ package ru.practicum.shareit.item;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.stereotype.Component;
+import ru.practicum.shareit.request.ItemRequest;
 
 import javax.validation.constraints.NotBlank;
-
-/**
- * TODO Sprint add-controllers.
- */
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 public class ItemDto {
 
-    private int id;
+    private Long id;
 
-    @NotBlank
+    @NotBlank(message = "Name should not be empty")
     private String name;
 
-    @NotBlank
+    @NotBlank(message = "Description should not be empty")
     private String description;
 
-    @NotBlank
+    @NotBlank(message = "Available should not be empty")
     private Boolean available;
 
-    private int requestId;
+    private Long requestId;
+
 }

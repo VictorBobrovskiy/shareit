@@ -3,37 +3,39 @@ package ru.practicum.shareit.user;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import ru.practicum.shareit.item.Item;
+import org.checkerframework.common.aliasing.qual.Unique;
 
+
+import javax.persistence.*;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotNull;
-import java.util.ArrayList;
-import java.util.List;
 
-/**
- * TODO Sprint add-controllers.
- */
-@Data
+
+
 @AllArgsConstructor
 @NoArgsConstructor
+@Entity
+@Table(name = "users")
+@Data
 public class User {
 
-    @NotNull
-    private int id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
+    private Long id;
 
     @NotNull
+    @Column(name = "name")
     private String name;
 
     @Email
-    @NotNull
+    @Column(name = "email", unique = true)
     private String email;
-
-    private List<Item> items;
-
-    public User(int id, String name, String email) {
-        this.id = id;
-        this.name = name;
-        this.email = email;
-        this.items = new ArrayList<>();
-    }
 }
+
+//    public void addItem(Item item) {
+//        if (items == null) items = new HashSet<>();
+//        items.add(item);
+//        item.setOwner(this);
+//    }
+
