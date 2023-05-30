@@ -11,7 +11,10 @@ import ru.practicum.shareit.user.User;
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import java.util.Collection;
+import java.util.List;
 import java.util.Set;
+import java.util.TreeSet;
 
 @Data
 @AllArgsConstructor
@@ -25,10 +28,9 @@ public class Item {
     @Column(name = "id")
     private Long id;
 
-    @NotNull(message = "Name should not be empty")
+    @NotNull(message = "Owner should not be null")
     @ManyToOne
     @JoinColumn(name = "user_id", referencedColumnName = "id")
-    @Cascade(org.hibernate.annotations.CascadeType.SAVE_UPDATE)
     private User owner;
 
     @NotBlank(message = "Name should not be empty")
@@ -43,14 +45,12 @@ public class Item {
     @Column(name = "available")
     private Boolean available;
 
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "request_id", referencedColumnName = "id")
-    @Cascade(org.hibernate.annotations.CascadeType.SAVE_UPDATE)
     private ItemRequest request;
 
-    @OneToMany(mappedBy="item")
-    @Cascade(org.hibernate.annotations.CascadeType.SAVE_UPDATE)
-    private Set<Booking> bookings;
+//    @OneToMany(mappedBy = "item")
+//    private Set<Booking> bookings;
 
     public Item(Long id, String name, String description, Boolean available, ItemRequest request) {
         this.id = id;
@@ -58,5 +58,9 @@ public class Item {
         this.description = description;
         this.available = available;
         this.request = request;
+    }
+
+    public Item(Long id) {
+        this.id = id;
     }
 }

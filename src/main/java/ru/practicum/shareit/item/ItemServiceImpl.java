@@ -7,12 +7,14 @@ import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.user.UserNotFoundException;
 import ru.practicum.shareit.user.UserRepository;
 
+import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class ItemServiceImpl implements ItemService {
 
     private final ItemRepository itemRepository;
@@ -21,20 +23,26 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public List<ItemDto> getItems(Long userId) {
-        return null;
-//        return itemRepository.findAllByUserId(userId).stream().map(ItemMapper::mapItemToDto).collect(Collectors.toList());
+        return itemRepository.findAllItemsByOwnerId(userId).stream().map(ItemMapper::mapItemToDto).collect(Collectors.toList());
     }
 
     @Override
     public ItemDto addNewItem(Long userId, ItemDto itemDto) {
-        Item item = ItemMapper.mapDtoToItem(validateItem(itemDto));
-        item.setOwner(userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException("User not found")));
+        Item item = ItemMapper.mapDtoToItem(itemDto);
+        item.setOwner(userRepository.findById(userId).orElseThrow(
+                () -> new UserNotFoundException("User not found")));
         return ItemMapper.mapItemToDto(itemRepository.save(item));
     }
 
     @Override
     public void deleteItem(Long userId, Long itemId) {
-//        itemRepository.deleteByUserIdAndItemId(userId, itemId);
+        Item item = itemRepository.findById(itemId).orElseThrow(() -> new ItemNotFoundException("Item not found"));
+        User owner = item.getOwner();
+        if (owner.getId() != userId) {
+            throw new UserNotFoundException("Wrong user");
+        } else {
+            itemRepository.deleteById(itemId);
+        }
     }
 
     @Override
@@ -43,18 +51,30 @@ public class ItemServiceImpl implements ItemService {
         User owner = item.getOwner();
         if (owner.getId() != userId) {
             throw new UserNotFoundException("Wrong user");
+        }
+        if (itemDto.getName() != null) {
+        item.setName(itemDto.getName());
+        }
+        if (itemDto.getDescription() != null) {
+            item.setDescription(itemDto.getDescription());
+        }
+        if (itemDto.getAvailable() != null) {
+            item.setAvailable(itemDto.getAvailable());
         } else {
             itemDto.setId(itemId);
-            item = ItemMapper.mapDtoToItem(itemDto);
             item.setOwner(owner);
-            return ItemMapper.mapItemToDto(itemRepository.save(item));
         }
+        return ItemMapper.mapItemToDto(itemRepository.save(item));
     }
 
     @Override
-    public ItemDto getItem(Long itemId) {
-        return ItemMapper.mapItemToDto(itemRepository.findById(itemId).orElseThrow(
-                () -> new ItemNotFoundException("Item not found")));
+    public ItemDto getItem(Long userId, Long itemId) {
+        Item item = itemRepository.findById(itemId).orElseThrow(
+                () -> new ItemNotFoundException("Item not found"));
+//        if (item.getOwner().getId() == userId) {
+//            return ItemMapper.mapItemToOwnerDto(item);
+//        }
+        return ItemMapper.mapItemToDto(item);
     }
 
     @Override
@@ -62,20 +82,12 @@ public class ItemServiceImpl implements ItemService {
         if (text.isBlank()) {
             return new ArrayList<>();
         }
-        return null;
-//        return itemRepository.findItemByName(text).stream().map(ItemMapper::mapItemToDto).collect(Collectors.toList());
-    }
-
-    private ItemDto validateItem(ItemDto itemDto) {
-//        if (itemDto.getName() == null || itemDto.getName().isBlank()) {
-//            throw new ValidationException("Items needs a name");
-//        } else if (itemDto.getDescription() == null || itemDto.getDescription().isBlank()) {
-//            throw new ValidationException("Items needs a description");
-//        } else if (itemDto.getAvailable() == null) {
-//            throw new ValidationException("Items needs an availability status");
-//        } else {
-            return itemDto;
+        return itemRepository.findAllItemsByDescriptionContainingIgnoreCaseAndAvailableTrue(text)
+                .stream()
+                .map(ItemMapper::mapItemToDto)
+                .collect(Collectors.toList());
 
     }
+
 
 }

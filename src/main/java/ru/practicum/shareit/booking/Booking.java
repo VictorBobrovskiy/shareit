@@ -3,13 +3,13 @@ package ru.practicum.shareit.booking;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.Cascade;
+import org.springframework.format.annotation.DateTimeFormat;
 import ru.practicum.shareit.item.Item;
 import ru.practicum.shareit.user.User;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 
 @Data
@@ -17,7 +17,7 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @Entity
 @Table(name = "booking")
-public class Booking {
+public class Booking implements Comparable<Booking>{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -26,35 +26,38 @@ public class Booking {
 
     @NotNull(message = "Date from should not be empty")
     @Column(name = "start")
-    private LocalDate from;
+    @DateTimeFormat(pattern = "YYYY-MM-DDTHH:mm:ss")
+    private LocalDateTime start;
 
     @NotNull(message = "Date to should not be empty")
     @Column(name = "finish")
-    private LocalDate to;
+    @DateTimeFormat(pattern = "YYYY-MM-DDTHH:mm:ss")
+    private LocalDateTime end;
 
-    @NotNull(message = "Item from should not be empty")
+    @NotNull(message = "Item should not be empty")
     @ManyToOne
     @JoinColumn(name = "item_id", referencedColumnName = "id")
-    @Cascade(org.hibernate.annotations.CascadeType.SAVE_UPDATE)
     private Item item;
 
-    @NotNull(message = "User from should not be empty")
+    @NotNull(message = "User should not be empty")
     @ManyToOne
     @JoinColumn(name = "user_id", referencedColumnName = "id")
-    @Cascade(org.hibernate.annotations.CascadeType.SAVE_UPDATE)
     private User booker;
 
     @NotNull
-    @Enumerated(EnumType.STRING)
     @Column(name = "state")
-    private State state;
+    private String status;
 
-    public Booking(LocalDate from, LocalDate to, Item item, User booker) {
-        this.from = from;
-        this.to = to;
+    public Booking(LocalDateTime start, LocalDateTime end, Item item, User booker) {
+        this.start = start;
+        this.end = end;
         this.item = item;
         this.booker = booker;
-        state = State.WAITING;
+        status = "WAITING";
     }
 
+    @Override
+    public int compareTo(Booking o) {
+        return this.getStart().compareTo(o.getStart());
+    }
 }

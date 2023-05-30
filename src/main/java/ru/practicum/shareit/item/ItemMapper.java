@@ -1,12 +1,14 @@
 package ru.practicum.shareit.item;
 
 
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Component;
+import ru.practicum.shareit.booking.Booking;
 import ru.practicum.shareit.request.ItemRequest;
 
-@Component
-@RequiredArgsConstructor
+import java.awt.print.Book;
+import java.util.Map;
+import java.util.Set;
+
+
 public class ItemMapper {
 
     public static Item mapDtoToItem(ItemDto itemDto) {
@@ -20,13 +22,30 @@ public class ItemMapper {
     }
 
     public static ItemDto mapItemToDto(Item item) {
+        Booking lastBooking = new Booking();
+        Booking nextBooking = new Booking();
         return new ItemDto(
                 item.getId(),
                 item.getName(),
                 item.getDescription(),
                 item.getAvailable(),
-                item.getRequest() != null ? item.getRequest().getId() : null
+                item.getRequest() != null ? item.getRequest().getId() : null,
+                lastBooking,
+                nextBooking
         );
     }
 
+    public static ItemOwnerDto mapItemToOwnerDto(Item item) {
+        Booking lastBooking = new Booking();
+        Booking nextBooking = new Booking();
+        return new ItemOwnerDto(
+                item.getId(),
+                item.getName(),
+                item.getDescription(),
+                item.getAvailable(),
+                item.getRequest() != null ? item.getRequest().getId() : null,
+                lastBooking,
+                nextBooking
+        );
+    }
 }

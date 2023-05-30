@@ -30,7 +30,6 @@ public class ItemRequest {
     @NotNull(message = "User from should not be empty")
     @ManyToOne
     @JoinColumn(name = "user_id", referencedColumnName = "id")
-    @Cascade(org.hibernate.annotations.CascadeType.SAVE_UPDATE)
     private User requester;
 
     @NotNull(message = "Date to should not be empty")

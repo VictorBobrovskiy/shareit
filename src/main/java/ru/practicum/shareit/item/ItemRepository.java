@@ -9,7 +9,6 @@ import java.util.List;
 
 @Repository
 public interface ItemRepository extends JpaRepository<Item, Long> {
-//    List<Item> findAllByUserId (Long userId);
-//    void deleteByUserIdAndItemId(Long userId, Long itemId);
-//    List<Item> findItemByName(String text);
+    List<Item> findAllItemsByOwnerId (Long userId);
+    List<Item> findAllItemsByDescriptionContainingIgnoreCaseAndAvailableTrue(String text);
 }

@@ -1,16 +1,17 @@
 package ru.practicum.shareit.item;
 
 import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import org.springframework.stereotype.Component;
-import ru.practicum.shareit.request.ItemRequest;
+import lombok.Getter;
+import lombok.Setter;
+import ru.practicum.shareit.booking.Booking;
+
 
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 
-@Data
+@Getter
+@Setter
 @AllArgsConstructor
-@NoArgsConstructor
 public class ItemDto {
 
     private Long id;
@@ -21,9 +22,13 @@ public class ItemDto {
     @NotBlank(message = "Description should not be empty")
     private String description;
 
-    @NotBlank(message = "Available should not be empty")
+    @NotNull(message = "Available should not be empty")
     private Boolean available;
 
     private Long requestId;
+
+    private Booking lastBooking;
+
+    private Booking nextBooking;
 
 }

@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.List;
 
 
@@ -30,13 +31,13 @@ public class UserController {
 
 
     @PostMapping
-    public UserDto addUser(@Validated @RequestBody UserDto userDto) {
+    public UserDto addUser(@RequestBody @Valid UserDto userDto) {
         log.debug("New user requested");
         return userService.addUser(userDto);
     }
 
     @PatchMapping(path = "/{id}")
-    public UserDto update(@PathVariable Long id, @Validated @RequestBody UserDto userDto) {
+    public UserDto update(@PathVariable Long id, @RequestBody UserDto userDto) {
         userDto.setId(id);
         log.debug("User update requested");
         return userService.update(userDto);
