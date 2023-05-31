@@ -3,6 +3,7 @@ package ru.practicum.shareit.item;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.Booking;
+import ru.practicum.shareit.booking.BookingMapper;
 import ru.practicum.shareit.booking.BookingRepository;
 import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.user.UserNotFoundException;
@@ -25,16 +26,41 @@ public class ItemServiceImpl implements ItemService {
 
     private final BookingRepository bookingRepository;
 
-    @Override
     public List<ItemDto> getItems(Long userId) {
-        List<Item> items =  itemRepository.findAllItemsByOwnerId(userId);
-        List<ItemDto> itemDtos = items.stream().map(ItemMapper::mapItemToDto).collect(Collectors.toList());
-        for (ItemDto itemDto : itemDtos) {
-            itemDto.setLastBooking(getLastBooking(ItemMapper.mapDtoToItem(itemDto)));
-            itemDto.setNextBooking(getNextBooking(ItemMapper.mapDtoToItem(itemDto)));
-        }
-        return itemDtos;
+        List<Item> items = itemRepository.findAllItemsByOwnerId(userId);
+        List<ItemDto> itemDtoList = items.stream().map(ItemMapper::mapItemToDto).collect(Collectors.toList());
 
+        for (ItemDto itemDto : itemDtoList) {
+            Item item = ItemMapper.mapDtoToItem(itemDto);
+            Booking lastBooking = getLastBooking(item);
+            if (lastBooking != null) {
+                itemDto.setLastBooking(BookingMapper.toDto(lastBooking));
+            }
+            Booking nextBooking = getNextBooking(item);
+            if (nextBooking != null) {
+                itemDto.setNextBooking(BookingMapper.toDto(nextBooking));
+            }
+        }
+        return itemDtoList;
+    }
+
+    @Override
+    public ItemDto getItem(Long userId, Long itemId) {
+        Item item = itemRepository.findById(itemId).orElseThrow(
+                () -> new ItemNotFoundException("Item not found"));
+        ItemDto itemDto = ItemMapper.mapItemToDto(item);
+        if (item.getOwner().getId() == userId) {
+            Booking lastBooking = getLastBooking(item);
+            if (lastBooking != null) {
+                itemDto.setLastBooking(BookingMapper.toDto(lastBooking));
+            }
+
+            Booking nextBooking = getNextBooking(item);
+            if (nextBooking != null) {
+                itemDto.setNextBooking(BookingMapper.toDto(nextBooking));
+            }
+        }
+        return itemDto;
     }
 
     @Override
@@ -78,17 +104,7 @@ public class ItemServiceImpl implements ItemService {
         return ItemMapper.mapItemToDto(itemRepository.save(item));
     }
 
-    @Override
-    public ItemDto getItem(Long userId, Long itemId) {
-        Item item = itemRepository.findById(itemId).orElseThrow(
-                () -> new ItemNotFoundException("Item not found"));
-        ItemDto itemDto = ItemMapper.mapItemToDto(item);
-        if (item.getOwner().getId() == userId) {
-           itemDto.setLastBooking(getLastBooking(item));
-           itemDto.setNextBooking(getNextBooking(item));
-        }
-        return itemDto;
-    }
+
 
     @Override
     public List<ItemDto> searchForItems(String text) {
