@@ -11,8 +11,10 @@ import ru.practicum.shareit.user.UserNotFoundException;
 import ru.practicum.shareit.user.UserRepository;
 
 import javax.transaction.Transactional;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
+import java.util.TreeSet;
 
 @Service
 @RequiredArgsConstructor
@@ -52,7 +54,7 @@ public class BookingServiceImpl implements BookingService {
         if (!userId.equals(booking.getItem().getOwner().getId())) {
             throw new UserNotFoundException("Only owners can change status");
         } else {
-            booking.setStatus("APPROVED");
+            booking.setStatus(approved ? "APPROVED" : "REJECTED");
             return booking;
         }
     }
@@ -135,5 +137,7 @@ public class BookingServiceImpl implements BookingService {
             throw new UserNotFoundException("User Not Found");
         }
     }
+
+
 
 }

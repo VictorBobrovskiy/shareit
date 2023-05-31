@@ -2,12 +2,14 @@ package ru.practicum.shareit.item;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import ru.practicum.shareit.exceptions.ValidationException;
+import ru.practicum.shareit.booking.Booking;
+import ru.practicum.shareit.booking.BookingRepository;
 import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.user.UserNotFoundException;
 import ru.practicum.shareit.user.UserRepository;
 
 import javax.transaction.Transactional;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -21,9 +23,18 @@ public class ItemServiceImpl implements ItemService {
 
     private final UserRepository userRepository;
 
+    private final BookingRepository bookingRepository;
+
     @Override
     public List<ItemDto> getItems(Long userId) {
-        return itemRepository.findAllItemsByOwnerId(userId).stream().map(ItemMapper::mapItemToDto).collect(Collectors.toList());
+        List<Item> items =  itemRepository.findAllItemsByOwnerId(userId);
+        List<ItemDto> itemDtos = items.stream().map(ItemMapper::mapItemToDto).collect(Collectors.toList());
+        for (ItemDto itemDto : itemDtos) {
+            itemDto.setLastBooking(getLastBooking(ItemMapper.mapDtoToItem(itemDto)));
+            itemDto.setNextBooking(getNextBooking(ItemMapper.mapDtoToItem(itemDto)));
+        }
+        return itemDtos;
+
     }
 
     @Override
@@ -71,10 +82,12 @@ public class ItemServiceImpl implements ItemService {
     public ItemDto getItem(Long userId, Long itemId) {
         Item item = itemRepository.findById(itemId).orElseThrow(
                 () -> new ItemNotFoundException("Item not found"));
-//        if (item.getOwner().getId() == userId) {
-//            return ItemMapper.mapItemToOwnerDto(item);
-//        }
-        return ItemMapper.mapItemToDto(item);
+        ItemDto itemDto = ItemMapper.mapItemToDto(item);
+        if (item.getOwner().getId() == userId) {
+           itemDto.setLastBooking(getLastBooking(item));
+           itemDto.setNextBooking(getNextBooking(item));
+        }
+        return itemDto;
     }
 
     @Override
@@ -89,5 +102,35 @@ public class ItemServiceImpl implements ItemService {
 
     }
 
+    @Override
+    public Booking getNextBooking(Item item) {
+        List<Booking> bookings = bookingRepository.findByItemOrderByStartAsc(item);
+        LocalDateTime now = LocalDateTime.now();
+        Booking nextBooking = null;
+
+        for (Booking booking : bookings) {
+            if (booking.getStart().isAfter(now)) {
+                nextBooking = booking;
+                break;
+            }
+        }
+        return nextBooking;
+    }
+
+    @Override
+    public Booking getLastBooking(Item item) {
+        List<Booking> bookings = bookingRepository.findByItemOrderByStartAsc(item);
+        LocalDateTime now = LocalDateTime.now();
+        Booking nextBooking = null;
+
+        for (Booking booking : bookings) {
+            if (booking.getStart().isBefore(now)) {
+                nextBooking = booking;
+                break;
+            }
+        }
+
+        return nextBooking;
+    }
 
 }

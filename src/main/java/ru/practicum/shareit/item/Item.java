@@ -11,6 +11,7 @@ import ru.practicum.shareit.user.User;
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
@@ -49,9 +50,6 @@ public class Item {
     @JoinColumn(name = "request_id", referencedColumnName = "id")
     private ItemRequest request;
 
-//    @OneToMany(mappedBy = "item")
-//    private Set<Booking> bookings;
-
     public Item(Long id, String name, String description, Boolean available, ItemRequest request) {
         this.id = id;
         this.name = name;
@@ -59,6 +57,9 @@ public class Item {
         this.available = available;
         this.request = request;
     }
+
+
+
 
     public Item(Long id) {
         this.id = id;

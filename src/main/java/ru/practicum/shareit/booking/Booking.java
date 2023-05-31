@@ -9,7 +9,12 @@ import ru.practicum.shareit.user.User;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
+import java.time.Instant;
 import java.time.LocalDateTime;
+import java.util.Collection;
+import java.util.List;
+import java.util.TreeMap;
+import java.util.TreeSet;
 
 
 @Data
@@ -55,6 +60,7 @@ public class Booking implements Comparable<Booking>{
         this.booker = booker;
         status = "WAITING";
     }
+
 
     @Override
     public int compareTo(Booking o) {
