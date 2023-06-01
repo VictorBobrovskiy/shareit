@@ -21,13 +21,14 @@ public class BookingMapper {
     }
 
     public static BookingDto toDto (Booking booking) {
-        Long id = booking.getId();
-        LocalDateTime start = booking.getStart();
-        LocalDateTime end = booking.getEnd();
-        Long itemId = booking.getItem().getId();
-        Long bookerId = booking.getBooker().getId();
-        String itemName = booking.getItem().getName();
-        String status  = booking.getStatus();
-        return new BookingDto(id, start, end, itemId, bookerId, itemName, status);
+        return new BookingDto(
+        booking.getId(),
+        booking.getStart(),
+        booking.getEnd(),
+        booking.getItem().getId(),
+        booking.getBooker().getId(),
+        booking.getItem().getName(),
+        booking.getStatus()
+        );
     }
 }

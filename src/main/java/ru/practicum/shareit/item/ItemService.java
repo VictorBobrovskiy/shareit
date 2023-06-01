@@ -1,6 +1,7 @@
 package ru.practicum.shareit.item;
 
 import ru.practicum.shareit.booking.Booking;
+import ru.practicum.shareit.comment.CommentDto;
 
 import java.util.List;
 
@@ -21,4 +22,6 @@ public interface ItemService {
     Booking getNextBooking(Item item);
 
     Booking getLastBooking(Item item);
+
+    CommentDto addNewComment(Long userId, CommentDto commentDto);
 }

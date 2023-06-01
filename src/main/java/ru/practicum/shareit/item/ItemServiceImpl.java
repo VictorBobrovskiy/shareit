@@ -5,6 +5,10 @@ import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.Booking;
 import ru.practicum.shareit.booking.BookingMapper;
 import ru.practicum.shareit.booking.BookingRepository;
+import ru.practicum.shareit.comment.Comment;
+import ru.practicum.shareit.comment.CommentDto;
+import ru.practicum.shareit.comment.CommentMapper;
+import ru.practicum.shareit.comment.CommentRepository;
 import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.user.UserNotFoundException;
 import ru.practicum.shareit.user.UserRepository;
@@ -27,6 +31,8 @@ public class ItemServiceImpl implements ItemService {
     private final UserRepository userRepository;
 
     private final BookingRepository bookingRepository;
+
+    private final CommentRepository commentRepository;
 
     public List<ItemDto> getItems(Long userId) {
         List<Item> items = itemRepository.findAllItemsByOwnerId(userId);
@@ -63,6 +69,11 @@ public class ItemServiceImpl implements ItemService {
                 itemDto.setNextBooking(BookingMapper.toDto(nextBooking));
             }
         }
+        List<CommentDto> itemComments = commentRepository.findAllByItemId(itemId)
+                .stream()
+                .map(CommentMapper::toDto)
+                .collect(Collectors.toList());
+        itemDto.setComments(itemComments);
         return itemDto;
     }
 
@@ -126,7 +137,6 @@ public class ItemServiceImpl implements ItemService {
         List<Booking> bookings = bookingRepository.findByItemOrderByStartAsc(item);
         LocalDateTime now = LocalDateTime.now();
         Booking nextBooking = null;
-
         for (Booking booking : bookings) {
             if (booking.getStart().isAfter(now)) {
                 nextBooking = booking;
@@ -141,7 +151,6 @@ public class ItemServiceImpl implements ItemService {
         List<Booking> bookings = bookingRepository.findByItemOrderByStartAsc(item);
         LocalDateTime now = LocalDateTime.now();
         Booking nextBooking = null;
-
         for (Booking booking : bookings) {
             if (booking.getStart().isBefore(now)) {
                 nextBooking = booking;
@@ -150,6 +159,15 @@ public class ItemServiceImpl implements ItemService {
         }
 
         return nextBooking;
+    }
+
+    @Override
+    public CommentDto addNewComment(Long userId, CommentDto commentDto) {
+        Comment comment = CommentMapper.toComment(commentDto);
+        User author = userRepository.findById(userId).orElseThrow(
+                () -> new UserNotFoundException("User not found"));
+        comment.setAuthor(author);
+        return  CommentMapper.toDto(commentRepository.save(comment));
     }
 
 }

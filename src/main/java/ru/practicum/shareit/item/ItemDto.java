@@ -2,9 +2,11 @@ package ru.practicum.shareit.item;
 
 import lombok.Data;
 import ru.practicum.shareit.booking.BookingDto;
+import ru.practicum.shareit.comment.CommentDto;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import java.util.List;
 
 
 @Data
@@ -26,6 +28,8 @@ public class ItemDto  implements Comparable<ItemDto>{
     private BookingDto lastBooking;
 
     private BookingDto nextBooking;
+
+    private List<CommentDto> comments;
 
 
     public ItemDto(Long id, String name, String description, Boolean available, Long requestId) {
