@@ -22,7 +22,7 @@ import java.util.TreeSet;
 @NoArgsConstructor
 @Entity
 @Table(name = "booking")
-public class Booking implements Comparable<Booking>{
+public class Booking {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -61,9 +61,4 @@ public class Booking implements Comparable<Booking>{
         status = "WAITING";
     }
 
-
-    @Override
-    public int compareTo(Booking o) {
-        return this.getStart().compareTo(o.getStart());
-    }
 }

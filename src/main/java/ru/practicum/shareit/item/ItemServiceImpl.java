@@ -13,6 +13,8 @@ import javax.transaction.Transactional;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.stream.Collectors;
 
 @Service
@@ -28,9 +30,10 @@ public class ItemServiceImpl implements ItemService {
 
     public List<ItemDto> getItems(Long userId) {
         List<Item> items = itemRepository.findAllItemsByOwnerId(userId);
-        List<ItemDto> itemDtoList = items.stream().map(ItemMapper::mapItemToDto).collect(Collectors.toList());
+        Set<ItemDto> itemDtoSet = new TreeSet<>();
+        itemDtoSet = items.stream().map(ItemMapper::mapItemToDto).collect(Collectors.toSet());
 
-        for (ItemDto itemDto : itemDtoList) {
+        for (ItemDto itemDto : itemDtoSet) {
             Item item = ItemMapper.mapDtoToItem(itemDto);
             Booking lastBooking = getLastBooking(item);
             if (lastBooking != null) {
@@ -41,7 +44,7 @@ public class ItemServiceImpl implements ItemService {
                 itemDto.setNextBooking(BookingMapper.toDto(nextBooking));
             }
         }
-        return itemDtoList;
+        return new ArrayList<>(itemDtoSet);
     }
 
     @Override

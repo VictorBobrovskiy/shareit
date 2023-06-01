@@ -1,8 +1,6 @@
 package ru.practicum.shareit.item;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import ru.practicum.shareit.booking.Booking;
 import ru.practicum.shareit.booking.BookingDto;
 
 import javax.validation.constraints.NotBlank;
@@ -10,7 +8,7 @@ import javax.validation.constraints.NotNull;
 
 
 @Data
-public class ItemDto {
+public class ItemDto  implements Comparable<ItemDto>{
 
     private Long id;
 
@@ -36,5 +34,10 @@ public class ItemDto {
         this.description = description;
         this.available = available;
         this.requestId = requestId;
+    }
+
+    @Override
+    public int compareTo(ItemDto o) {
+        return this.nextBooking.getStart().compareTo(o.getNextBooking().getStart());
     }
 }

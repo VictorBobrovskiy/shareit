@@ -3,21 +3,14 @@ package ru.practicum.shareit.booking;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import org.hibernate.annotations.Cascade;
 import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.stereotype.Component;
-import ru.practicum.shareit.item.Item;
-import ru.practicum.shareit.user.User;
-
-import javax.persistence.*;
 import javax.validation.constraints.Future;
 import javax.validation.constraints.NotNull;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @AllArgsConstructor
 @Data
-public class BookingDto {
+public class BookingDto implements Comparable<BookingDto>{
 
     private Long id;
 
@@ -42,5 +35,10 @@ public class BookingDto {
 
     public BookingDto(Long id) {
         this.id = id;
+    }
+
+    @Override
+    public int compareTo(BookingDto o) {
+        return this.getStart().compareTo(o.getStart());
     }
 }
