@@ -9,6 +9,6 @@ import java.util.List;
 
 @Repository
 public interface ItemRepository extends JpaRepository<Item, Long> {
-    List<Item> findAllItemsByOwnerId (Long userId);
+    List<Item> findAllItemsByOwnerIdOrderById (Long userId);
     List<Item> findAllItemsByDescriptionContainingIgnoreCaseAndAvailableTrue(String text);
 }

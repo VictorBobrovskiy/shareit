@@ -2,8 +2,11 @@ package ru.practicum.shareit.comment;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import org.springframework.format.annotation.DateTimeFormat;
 
+import javax.persistence.Column;
 import javax.validation.constraints.NotNull;
+import java.time.LocalDateTime;
 
 @Data
 @AllArgsConstructor
@@ -17,6 +20,9 @@ public class CommentDto {
     private Long itemId;
 
     private String authorName;
+
+    private LocalDateTime created;
+
 
     public CommentDto(Long id) {
         this.id = id;

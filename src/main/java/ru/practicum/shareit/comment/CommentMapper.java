@@ -19,7 +19,8 @@ public class CommentMapper {
                 comment.getId(),
                 comment.getText(),
                 comment.getItem().getId(),
-                comment.getAuthor().getName()
+                comment.getAuthor().getName(),
+                comment.getCreated()
         );
 }
 }

@@ -9,6 +9,7 @@ import ru.practicum.shareit.comment.Comment;
 import ru.practicum.shareit.comment.CommentDto;
 import ru.practicum.shareit.comment.CommentMapper;
 import ru.practicum.shareit.comment.CommentRepository;
+import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.user.UserNotFoundException;
 import ru.practicum.shareit.user.UserRepository;
@@ -32,7 +33,7 @@ public class ItemServiceImpl implements ItemService {
     private final CommentRepository commentRepository;
 
     public List<ItemDto> getItems(Long userId) {
-        List<Item> items = itemRepository.findAllItemsByOwnerId(userId);
+        List<Item> items = itemRepository.findAllItemsByOwnerIdOrderById(userId);
         List<ItemDto> itemDtoList =  items.stream().map(ItemMapper::mapItemToDto).collect(Collectors.toList());
 
         for (ItemDto itemDto : itemDtoList) {
@@ -46,7 +47,6 @@ public class ItemServiceImpl implements ItemService {
                 itemDto.setNextBooking(BookingMapper.toDto(nextBooking));
             }
         }
-        Collections.sort(itemDtoList);
         return itemDtoList;
     }
 
@@ -129,13 +129,13 @@ public class ItemServiceImpl implements ItemService {
 
     }
 
-    @Override
-    public Booking getNextBooking(Item item) {
+
+    private Booking getNextBooking(Item item) {
         List<Booking> bookings = bookingRepository.findByItemOrderByStartAsc(item);
         LocalDateTime now = LocalDateTime.now();
         Booking nextBooking = null;
         for (Booking booking : bookings) {
-            if (booking.getStart().isAfter(now)) {
+            if (booking.getStart().isAfter(now) && "APPROVED".equals(booking.getStatus())) {
                 nextBooking = booking;
                 break;
             }
@@ -143,32 +143,48 @@ public class ItemServiceImpl implements ItemService {
         return nextBooking;
     }
 
-    @Override
-    public Booking getLastBooking(Item item) {
+    private Booking getLastBooking(Item item) {
         List<Booking> bookings = bookingRepository.findByItemOrderByStartDesc(item);
         LocalDateTime now = LocalDateTime.now();
-        Booking nextBooking = null;
+        Booking lastBooking = null;
         for (Booking booking : bookings) {
-            if (booking.getStart().isBefore(now)) {
-                nextBooking = booking;
+            if (booking.getStart().isBefore(now) && "APPROVED".equals(booking.getStatus())){
+                lastBooking = booking;
                 break;
             }
         }
 
-        return nextBooking;
+        return lastBooking;
     }
+
 
     @Override
     public CommentDto addNewComment(Long userId, Long itemId, CommentDto commentDto) {
         Comment comment = CommentMapper.toComment(commentDto);
-        User author = userRepository.findById(userId).orElseThrow(
-                () -> new UserNotFoundException("User not found"));
-        Item item = itemRepository.findById(itemId).orElseThrow(
-                () -> new ItemNotFoundException("Item not found"));
-        comment.setAuthor(author);
-        comment.setItem(item);
-        comment.setCreated(LocalDateTime.now());
-        return  CommentMapper.toDto(commentRepository.save(comment));
+        List<Booking> bookings = bookingRepository.findAllBookingsByBookerIdOrderByStartDesc(userId);
+        boolean hasPastBookingsForItem = false;
+
+        for (Booking booking : bookings) {
+            if (booking.getItem().getId().equals(itemId) && booking.getEnd().isBefore(LocalDateTime.now())) {
+                hasPastBookingsForItem = true;
+                break; // Break out of the loop once a past booking is found
+            }
+        }
+
+        if (hasPastBookingsForItem) {
+            User author = userRepository.findById(userId).orElseThrow(
+                    () -> new UserNotFoundException("User not found"));
+            Item item = itemRepository.findById(itemId).orElseThrow(
+                    () -> new ItemNotFoundException("Item not found"));
+
+            comment.setAuthor(author);
+            comment.setItem(item);
+            comment.setCreated(LocalDateTime.now());
+        } else {
+            throw new ValidationException("No past bookings found for the user");
+        }
+
+        return CommentMapper.toDto(commentRepository.save(comment));
     }
 
 }

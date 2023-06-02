@@ -19,9 +19,5 @@ public interface ItemService {
 
     List<ItemDto> searchForItems(String text);
 
-    Booking getNextBooking(Item item);
-
-    Booking getLastBooking(Item item);
-
     CommentDto addNewComment(Long userId, Long itemId, CommentDto commentDto);
 }
