@@ -159,11 +159,15 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public CommentDto addNewComment(Long userId, CommentDto commentDto) {
+    public CommentDto addNewComment(Long userId, Long itemId, CommentDto commentDto) {
         Comment comment = CommentMapper.toComment(commentDto);
         User author = userRepository.findById(userId).orElseThrow(
                 () -> new UserNotFoundException("User not found"));
+        Item item = itemRepository.findById(itemId).orElseThrow(
+                () -> new ItemNotFoundException("Item not found"));
         comment.setAuthor(author);
+        comment.setItem(item);
+        comment.setCreated(LocalDateTime.now());
         return  CommentMapper.toDto(commentRepository.save(comment));
     }
 

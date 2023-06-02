@@ -23,5 +23,5 @@ public interface ItemService {
 
     Booking getLastBooking(Item item);
 
-    CommentDto addNewComment(Long userId, CommentDto commentDto);
+    CommentDto addNewComment(Long userId, Long itemId, CommentDto commentDto);
 }

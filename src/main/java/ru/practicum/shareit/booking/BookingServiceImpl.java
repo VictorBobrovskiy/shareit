@@ -86,7 +86,6 @@ public class BookingServiceImpl implements BookingService {
     private List<Booking> filterBookingsByState(List<Booking> bookingList, String state) {
         String status;
         LocalDateTime now = LocalDateTime.now();
-
         switch (state.toUpperCase()) {
             case "ALL":
                 return bookingList;
@@ -117,8 +116,9 @@ public class BookingServiceImpl implements BookingService {
             default:
                 throw new IllegalArgumentException("Unknown state: " + state);
         }
-
-        return bookingRepository.findAllBookingsByStatusOrderByStartDesc(status);
+        return bookingList.stream()
+                .filter(b -> b.getStatus().equals(status))
+                .collect(Collectors.toList());
     }
 
 

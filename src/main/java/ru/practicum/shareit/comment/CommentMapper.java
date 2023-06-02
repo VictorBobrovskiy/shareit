@@ -1,11 +1,7 @@
 package ru.practicum.shareit.comment;
 
-import ru.practicum.shareit.booking.Booking;
-import ru.practicum.shareit.booking.BookingDto;
 import ru.practicum.shareit.item.Item;
 import ru.practicum.shareit.user.User;
-
-import java.time.LocalDateTime;
 
 public class CommentMapper {
 
@@ -14,8 +10,7 @@ public class CommentMapper {
                 commentDto.getId(),
                 commentDto.getText(),
                 new Item(commentDto.getItemId()),
-                new User(commentDto.getAuthorId())
-
+                new User(commentDto.getAuthorName())
         );
     }
 
@@ -24,7 +19,7 @@ public class CommentMapper {
                 comment.getId(),
                 comment.getText(),
                 comment.getItem().getId(),
-                comment.getAuthor().getId()
+                comment.getAuthor().getName()
         );
 }
 }

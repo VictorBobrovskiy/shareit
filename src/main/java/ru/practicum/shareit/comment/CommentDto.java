@@ -14,10 +14,9 @@ public class CommentDto {
     @NotNull(message = "Text from should not be empty")
     private String text;
 
-    @NotNull(message = "Item from should not be empty")
     private Long itemId;
 
-    private Long authorId;
+    private String authorName;
 
     public CommentDto(Long id) {
         this.id = id;
