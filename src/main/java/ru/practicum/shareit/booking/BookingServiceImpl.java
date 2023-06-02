@@ -6,6 +6,7 @@ import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.item.Item;
 import ru.practicum.shareit.item.ItemNotFoundException;
 import ru.practicum.shareit.item.ItemRepository;
+import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.user.UserAccessException;
 import ru.practicum.shareit.user.UserNotFoundException;
 import ru.practicum.shareit.user.UserRepository;
@@ -28,8 +29,11 @@ public class BookingServiceImpl implements BookingService {
     @Override
     public Booking addNewBooking(Long userId, BookingDto bookingDto) {
         Booking booking = BookingMapper.toBooking(bookingDto);
-        booking.setBooker(userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException("User not found")));
-        Item item = itemRepository.findById(bookingDto.getItemId()).orElseThrow(() -> new ItemNotFoundException("Item not found"));
+        User booker = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException("User not found"));
+
+        Item item = itemRepository.findById(bookingDto.getItemId())
+                .orElseThrow(() -> new ItemNotFoundException("Item not found"));
         if (!item.getAvailable()) {
             throw new ValidationException("Item currently unavailable");
         }
@@ -38,12 +42,14 @@ public class BookingServiceImpl implements BookingService {
         }
         if (item.getOwner().getId() == userId) {
             throw new UserAccessException("You cannot book your own item");
-        } else {
-            booking.setItem(item);
-            booking.setStatus("WAITING");
-            return bookingRepository.save(booking);
         }
+
+        booking.setBooker(booker);
+        booking.setItem(item);
+        booking.setStatus("WAITING");
+        return bookingRepository.save(booking);
     }
+
 
     @Override
     public Booking approveBooking(Long userId, Long id, Boolean approved) {

@@ -18,6 +18,7 @@ import javax.transaction.Transactional;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -130,31 +131,19 @@ public class ItemServiceImpl implements ItemService {
     }
 
 
-    private Booking getNextBooking(Item item) {
-        List<Booking> bookings = bookingRepository.findByItemOrderByStartAsc(item);
+    public Booking getNextBooking(Item item) {
         LocalDateTime now = LocalDateTime.now();
-        Booking nextBooking = null;
-        for (Booking booking : bookings) {
-            if (booking.getStart().isAfter(now) && "APPROVED".equals(booking.getStatus())) {
-                nextBooking = booking;
-                break;
-            }
-        }
-        return nextBooking;
+        Optional<Booking> nextBooking = bookingRepository
+                .findFirstByItemAndStartAfterAndStatusOrderByStartAsc(item, now, "APPROVED");
+        return nextBooking.orElse(null);
     }
 
-    private Booking getLastBooking(Item item) {
-        List<Booking> bookings = bookingRepository.findByItemOrderByStartDesc(item);
-        LocalDateTime now = LocalDateTime.now();
-        Booking lastBooking = null;
-        for (Booking booking : bookings) {
-            if (booking.getStart().isBefore(now) && "APPROVED".equals(booking.getStatus())) {
-                lastBooking = booking;
-                break;
-            }
-        }
 
-        return lastBooking;
+    public Booking getLastBooking(Item item) {
+        LocalDateTime now = LocalDateTime.now();
+        Optional<Booking> lastBooking = bookingRepository
+                .findFirstByItemAndStartBeforeAndStatusOrderByStartDesc(item, now, "APPROVED");
+        return lastBooking.orElse(null);
     }
 
 
@@ -167,7 +156,7 @@ public class ItemServiceImpl implements ItemService {
         for (Booking booking : bookings) {
             if (booking.getItem().getId().equals(itemId) && booking.getEnd().isBefore(LocalDateTime.now())) {
                 hasPastBookingsForItem = true;
-                break; // Break out of the loop once a past booking is found
+                break;
             }
         }
 

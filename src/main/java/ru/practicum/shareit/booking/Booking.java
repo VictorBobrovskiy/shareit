@@ -48,12 +48,4 @@ public class Booking {
     @Column(name = "state")
     private String status;
 
-    public Booking(LocalDateTime start, LocalDateTime end, Item item, User booker) {
-        this.start = start;
-        this.end = end;
-        this.item = item;
-        this.booker = booker;
-        status = "WAITING";
-    }
-
 }
