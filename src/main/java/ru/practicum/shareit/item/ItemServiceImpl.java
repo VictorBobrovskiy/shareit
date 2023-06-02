@@ -57,7 +57,9 @@ public class ItemServiceImpl implements ItemService {
     public ItemDto getItem(Long userId, Long itemId) {
         Item item = itemRepository.findById(itemId).orElseThrow(
                 () -> new ItemNotFoundException("Item not found"));
+
         ItemDto itemDto = ItemMapper.mapItemToDto(item);
+
         if (item.getOwner().getId() == userId) {
             Booking lastBooking = getLastBooking(item);
             if (lastBooking != null) {
@@ -99,8 +101,8 @@ public class ItemServiceImpl implements ItemService {
     @Override
     public ItemDto updateItem(Long userId, Long itemId, ItemDto itemDto) {
         Item item = itemRepository.findById(itemId).orElseThrow(() -> new ItemNotFoundException("Item not found"));
-        User owner = item.getOwner();
-        if (owner.getId() != userId) {
+
+        if (item.getOwner().getId() != userId) {
             throw new UserAccessException("Wrong user");
         }
         if (itemDto.getName() != null) {
@@ -111,9 +113,6 @@ public class ItemServiceImpl implements ItemService {
         }
         if (itemDto.getAvailable() != null) {
             item.setAvailable(itemDto.getAvailable());
-        } else {
-            itemDto.setId(itemId);
-            item.setOwner(owner);
         }
         return ItemMapper.mapItemToDto(itemRepository.save(item));
     }
@@ -150,31 +149,26 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public CommentDto addNewComment(Long userId, Long itemId, CommentDto commentDto) {
-        Comment comment = CommentMapper.toComment(commentDto);
         List<Booking> bookings = bookingRepository.findAllBookingsByBookerIdOrderByStartDesc(userId);
-        boolean hasPastBookings = false;
 
-        for (Booking booking : bookings) {
-            if (booking.getItem().getId().equals(itemId) && booking.getEnd().isBefore(LocalDateTime.now())) {
-                hasPastBookings = true;
-                break;
-            }
-        }
+        boolean hasPastBookings = bookings.stream()
+                .anyMatch(booking -> booking.getItem().getId().equals(itemId) && booking.getEnd().isBefore(LocalDateTime.now()));
 
         if (hasPastBookings) {
-            User author = userRepository.findById(userId).orElseThrow(
-                    () -> new UserNotFoundException("User not found"));
-            Item item = itemRepository.findById(itemId).orElseThrow(
-                    () -> new ItemNotFoundException("Item not found"));
+            User author = userRepository.findById(userId)
+                    .orElseThrow(() -> new UserNotFoundException("User not found"));
+            Item item = itemRepository.findById(itemId)
+                    .orElseThrow(() -> new ItemNotFoundException("Item not found"));
 
+            Comment comment = CommentMapper.toComment(commentDto);
             comment.setAuthor(author);
             comment.setItem(item);
             comment.setCreated(LocalDateTime.now());
+
+            return CommentMapper.toDto(commentRepository.save(comment));
         } else {
             throw new ValidationException("No past bookings found for the user");
         }
-
-        return CommentMapper.toDto(commentRepository.save(comment));
     }
 
 }
