@@ -19,6 +19,7 @@ import javax.transaction.Transactional;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -60,7 +61,7 @@ public class ItemServiceImpl implements ItemService {
 
         ItemDto itemDto = ItemMapper.mapItemToDto(item);
 
-        if (item.getOwner().getId() == userId) {
+        if (Objects.equals(item.getOwner().getId(), userId)) {
             Booking lastBooking = getLastBooking(item);
             if (lastBooking != null) {
                 itemDto.setLastBooking(BookingMapper.toDto(lastBooking));
@@ -91,7 +92,7 @@ public class ItemServiceImpl implements ItemService {
     public void deleteItem(Long userId, Long itemId) {
         Item item = itemRepository.findById(itemId).orElseThrow(() -> new ItemNotFoundException("Item not found"));
         User owner = item.getOwner();
-        if (owner.getId() != userId) {
+        if (!Objects.equals(owner.getId(), userId)) {
             throw new UserAccessException("Wrong user");
         } else {
             itemRepository.deleteById(itemId);
@@ -102,7 +103,7 @@ public class ItemServiceImpl implements ItemService {
     public ItemDto updateItem(Long userId, Long itemId, ItemDto itemDto) {
         Item item = itemRepository.findById(itemId).orElseThrow(() -> new ItemNotFoundException("Item not found"));
 
-        if (item.getOwner().getId() != userId) {
+        if (!Objects.equals(item.getOwner().getId(), userId)) {
             throw new UserAccessException("Wrong user");
         }
         if (itemDto.getName() != null) {
