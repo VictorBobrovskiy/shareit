@@ -42,6 +42,6 @@ public class ItemDto  implements Comparable<ItemDto>{
 
     @Override
     public int compareTo(ItemDto o) {
-        return this.nextBooking.getStart().compareTo(o.getNextBooking().getStart());
+        return this.getId().compareTo(o.getId());
     }
 }

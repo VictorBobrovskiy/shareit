@@ -15,10 +15,7 @@ import ru.practicum.shareit.user.UserRepository;
 
 import javax.transaction.Transactional;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -36,10 +33,9 @@ public class ItemServiceImpl implements ItemService {
 
     public List<ItemDto> getItems(Long userId) {
         List<Item> items = itemRepository.findAllItemsByOwnerId(userId);
-        Set<ItemDto> itemDtoSet = new TreeSet<>();
-        itemDtoSet = items.stream().map(ItemMapper::mapItemToDto).collect(Collectors.toSet());
+        List<ItemDto> itemDtoList =  items.stream().map(ItemMapper::mapItemToDto).collect(Collectors.toList());
 
-        for (ItemDto itemDto : itemDtoSet) {
+        for (ItemDto itemDto : itemDtoList) {
             Item item = ItemMapper.mapDtoToItem(itemDto);
             Booking lastBooking = getLastBooking(item);
             if (lastBooking != null) {
@@ -50,7 +46,8 @@ public class ItemServiceImpl implements ItemService {
                 itemDto.setNextBooking(BookingMapper.toDto(nextBooking));
             }
         }
-        return new ArrayList<>(itemDtoSet);
+        Collections.sort(itemDtoList);
+        return itemDtoList;
     }
 
     @Override
@@ -148,7 +145,7 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public Booking getLastBooking(Item item) {
-        List<Booking> bookings = bookingRepository.findByItemOrderByStartAsc(item);
+        List<Booking> bookings = bookingRepository.findByItemOrderByStartDesc(item);
         LocalDateTime now = LocalDateTime.now();
         Booking nextBooking = null;
         for (Booking booking : bookings) {

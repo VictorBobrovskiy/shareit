@@ -11,8 +11,10 @@ import ru.practicum.shareit.user.UserNotFoundException;
 import ru.practicum.shareit.user.UserRepository;
 
 import javax.transaction.Transactional;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -70,48 +72,36 @@ public class BookingServiceImpl implements BookingService {
     @Override
     public List<Booking> getAllByBookerId(Long bookerId, String state) {
         checkUserExists(bookerId);
-        String status;
-        switch (state.toUpperCase()) {
-            case "ALL":
-                return bookingRepository.findAllBookingsByBookerIdOrderByStartDesc(bookerId);
-            case "PAST":
-                return bookingRepository.findAllPastBookingsByBookerIdOrderByStartDesc(bookerId);
-            case "CURRENT":
-                return bookingRepository.findAllCurrentBookingsByBookerIdOrderByStartDesc(bookerId);
-            case "FUTURE":
-                return bookingRepository.findAllFutureBookingsByBookerIdOrderByStartDesc(bookerId);
-            case "WAITING":
-                status = "WAITING";
-                break;
-            case "APPROVED":
-                status = "APPROVED";
-                break;
-            case "REJECTED":
-                status = "REJECTED";
-                break;
-            case "CANCELLED":
-                status = "CANCELLED";
-                break;
-            default:
-                throw new IllegalArgumentException("Unknown state: " + state);
-        }
-
-        return bookingRepository.findAllBookingsByBookerIdAndStatusOrderByStartDesc(bookerId, status);
+        List<Booking> bookingList = bookingRepository.findAllBookingsByBookerIdOrderByStartDesc(bookerId);
+        return filterBookingsByState(bookingList, state);
     }
 
     @Override
     public List<Booking> getAllByOwnerId(Long ownerId, String state) {
         checkUserExists(ownerId);
+        List<Booking> bookingList = bookingRepository.findAllBookingsByItemOwnerIdOrderByStartDesc(ownerId);
+        return filterBookingsByState(bookingList, state);
+    }
+
+    private List<Booking> filterBookingsByState(List<Booking> bookingList, String state) {
         String status;
+        LocalDateTime now = LocalDateTime.now();
+
         switch (state.toUpperCase()) {
             case "ALL":
-                return bookingRepository.findAllBookingsByItemOwnerIdOrderByStartDesc(ownerId);
+                return bookingList;
             case "PAST":
-                return bookingRepository.findAllPastBookingsByItemOwnerIdOrderByStartDesc(ownerId);
+                return bookingList.stream()
+                        .filter(b -> b.getEnd().isBefore(now))
+                        .collect(Collectors.toList());
             case "CURRENT":
-                return bookingRepository.findAllCurrentBookingsByItemOwnerIdOrderByStartDesc(ownerId);
+                return bookingList.stream()
+                        .filter(b -> b.getStart().isBefore(now) && b.getEnd().isAfter(now))
+                        .collect(Collectors.toList());
             case "FUTURE":
-                return bookingRepository.findAllFutureBookingsByItemOwnerIdOrderByStartDesc(ownerId);
+                return bookingList.stream()
+                        .filter(b -> b.getStart().isAfter(now))
+                        .collect(Collectors.toList());
             case "WAITING":
                 status = "WAITING";
                 break;
@@ -127,8 +117,10 @@ public class BookingServiceImpl implements BookingService {
             default:
                 throw new IllegalArgumentException("Unknown state: " + state);
         }
-        return bookingRepository.findAllBookingsByItemOwnerIdAndStatusOrderByStartDesc(ownerId, status);
+
+        return bookingRepository.findAllBookingsByStatusOrderByStartDesc(status);
     }
+
 
     private void checkUserExists(Long ownerId) {
         if (!userRepository.existsById(ownerId)) {
