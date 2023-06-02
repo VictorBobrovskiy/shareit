@@ -33,10 +33,10 @@ public class BookingServiceImpl implements BookingService {
         if (!item.getAvailable()) {
             throw new ValidationException("Item currently unavailable");
         }
-        if (booking.getStart().isAfter(booking.getEnd()) || booking.getStart().equals(booking.getEnd()))  {
+        if (booking.getStart().isAfter(booking.getEnd()) || booking.getStart().equals(booking.getEnd())) {
             throw new ValidationException("Minimal period of booking is one day");
         }
-        if (item.getOwner().getId() ==  userId) {
+        if (item.getOwner().getId() == userId) {
             throw new UserAccessException("You cannot book your own item");
         } else {
             booking.setItem(item);
@@ -127,7 +127,6 @@ public class BookingServiceImpl implements BookingService {
             throw new UserNotFoundException("User Not Found");
         }
     }
-
 
 
 }

@@ -14,7 +14,7 @@ public class CommentMapper {
         );
     }
 
-    public static CommentDto toDto (Comment comment) {
+    public static CommentDto toDto(Comment comment) {
         return new CommentDto(
                 comment.getId(),
                 comment.getText(),
@@ -22,5 +22,5 @@ public class CommentMapper {
                 comment.getAuthor().getName(),
                 comment.getCreated()
         );
-}
+    }
 }

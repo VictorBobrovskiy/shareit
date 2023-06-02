@@ -3,7 +3,6 @@ package ru.practicum.shareit.request;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.Cascade;
 import ru.practicum.shareit.user.User;
 
 import javax.persistence.*;

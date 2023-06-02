@@ -10,7 +10,7 @@ import java.util.List;
 
 
 @Data
-public class ItemDto  implements Comparable<ItemDto>{
+public class ItemDto implements Comparable<ItemDto> {
 
     private Long id;
 

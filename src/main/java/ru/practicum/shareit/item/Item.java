@@ -3,19 +3,12 @@ package ru.practicum.shareit.item;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.Cascade;
-import ru.practicum.shareit.booking.Booking;
 import ru.practicum.shareit.request.ItemRequest;
 import ru.practicum.shareit.user.User;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
-import java.time.LocalDateTime;
-import java.util.Collection;
-import java.util.List;
-import java.util.Set;
-import java.util.TreeSet;
 
 @Data
 @AllArgsConstructor
@@ -57,8 +50,6 @@ public class Item {
         this.available = available;
         this.request = request;
     }
-
-
 
 
     public Item(Long id) {

@@ -16,7 +16,8 @@ import ru.practicum.shareit.user.UserRepository;
 
 import javax.transaction.Transactional;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
@@ -34,7 +35,7 @@ public class ItemServiceImpl implements ItemService {
 
     public List<ItemDto> getItems(Long userId) {
         List<Item> items = itemRepository.findAllItemsByOwnerIdOrderById(userId);
-        List<ItemDto> itemDtoList =  items.stream().map(ItemMapper::mapItemToDto).collect(Collectors.toList());
+        List<ItemDto> itemDtoList = items.stream().map(ItemMapper::mapItemToDto).collect(Collectors.toList());
 
         for (ItemDto itemDto : itemDtoList) {
             Item item = ItemMapper.mapDtoToItem(itemDto);
@@ -101,7 +102,7 @@ public class ItemServiceImpl implements ItemService {
             throw new UserNotFoundException("Wrong user");
         }
         if (itemDto.getName() != null) {
-        item.setName(itemDto.getName());
+            item.setName(itemDto.getName());
         }
         if (itemDto.getDescription() != null) {
             item.setDescription(itemDto.getDescription());
@@ -114,7 +115,6 @@ public class ItemServiceImpl implements ItemService {
         }
         return ItemMapper.mapItemToDto(itemRepository.save(item));
     }
-
 
 
     @Override
@@ -148,7 +148,7 @@ public class ItemServiceImpl implements ItemService {
         LocalDateTime now = LocalDateTime.now();
         Booking lastBooking = null;
         for (Booking booking : bookings) {
-            if (booking.getStart().isBefore(now) && "APPROVED".equals(booking.getStatus())){
+            if (booking.getStart().isBefore(now) && "APPROVED".equals(booking.getStatus())) {
                 lastBooking = booking;
                 break;
             }

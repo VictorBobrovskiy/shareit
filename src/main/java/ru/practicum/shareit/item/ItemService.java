@@ -1,6 +1,5 @@
 package ru.practicum.shareit.item;
 
-import ru.practicum.shareit.booking.Booking;
 import ru.practicum.shareit.comment.CommentDto;
 
 import java.util.List;

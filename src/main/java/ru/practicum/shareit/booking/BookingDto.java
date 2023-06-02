@@ -4,13 +4,14 @@ package ru.practicum.shareit.booking;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import org.springframework.format.annotation.DateTimeFormat;
+
 import javax.validation.constraints.Future;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 
 @AllArgsConstructor
 @Data
-public class BookingDto implements Comparable<BookingDto>{
+public class BookingDto implements Comparable<BookingDto> {
 
     private Long id;
 
