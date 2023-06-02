@@ -40,7 +40,7 @@ public class BookingServiceImpl implements BookingService {
         if (booking.getStart().isAfter(booking.getEnd()) || booking.getStart().equals(booking.getEnd())) {
             throw new ValidationException("Minimal period of booking is one day");
         }
-        if (item.getOwner().getId() == userId) {
+        if (Objects.equals(item.getOwner().getId(), userId)) {
             throw new UserAccessException("You cannot book your own item");
         }
 
@@ -59,10 +59,9 @@ public class BookingServiceImpl implements BookingService {
         }
         if (!userId.equals(booking.getItem().getOwner().getId())) {
             throw new UserNotFoundException("Only owners can change status");
-        } else {
-            booking.setStatus(approved ? "APPROVED" : "REJECTED");
-            return booking;
         }
+        booking.setStatus(approved ? "APPROVED" : "REJECTED");
+        return booking;
     }
 
     @Override

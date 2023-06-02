@@ -21,8 +21,4 @@ public class CommentDto {
 
     private LocalDateTime created;
 
-
-    public CommentDto(Long id) {
-        this.id = id;
-    }
 }
