@@ -45,7 +45,7 @@ public class Booking {
     private User booker;
 
     @NotNull
-    @Column(name = "status")
+    @Column(name = "state")
     private String status;
 
 }

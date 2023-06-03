@@ -17,10 +17,7 @@ import ru.practicum.shareit.user.UserRepository;
 
 import javax.transaction.Transactional;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -124,7 +121,8 @@ public class ItemServiceImpl implements ItemService {
         if (text.isBlank()) {
             return new ArrayList<>();
         }
-        return itemRepository.findAllItemsByDescriptionContainingIgnoreCaseAndAvailableTrue(text)
+        String query = text.toLowerCase();
+        return itemRepository.findAllItemsByDescriptionContainingIgnoreCaseAndAvailableTrue(query)
                 .stream()
                 .map(ItemMapper::mapItemToDto)
                 .collect(Collectors.toList());
@@ -135,7 +133,7 @@ public class ItemServiceImpl implements ItemService {
     public Booking getNextBooking(Item item) {
         LocalDateTime now = LocalDateTime.now();
         Optional<Booking> nextBooking = bookingRepository
-                .findFirstByItemAndStartAfterAndStatusOrderByStartAsc(item, now, "APPROVED");
+                .findFirstByItemAndStartAfterAndStatusOrderByStartAsc(item.getId(), now, "APPROVED");
         return nextBooking.orElse(null);
     }
 
@@ -143,7 +141,7 @@ public class ItemServiceImpl implements ItemService {
     public Booking getLastBooking(Item item) {
         LocalDateTime now = LocalDateTime.now();
         Optional<Booking> lastBooking = bookingRepository
-                .findFirstByItemAndStartBeforeAndStatusOrderByStartDesc(item, now, "APPROVED");
+                .findFirstByItemAndStartBeforeAndStatusOrderByStartDesc(item.getId(), now, "APPROVED");
         return lastBooking.orElse(null);
     }
 

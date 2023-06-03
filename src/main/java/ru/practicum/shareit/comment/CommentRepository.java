@@ -1,6 +1,8 @@
 package ru.practicum.shareit.comment;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -8,5 +10,6 @@ import java.util.List;
 @Repository
 public interface CommentRepository extends JpaRepository<Comment, Long> {
 
-    List<Comment> findAllByItemId(Long itemId);
+    @Query("SELECT c FROM Comment c JOIN FETCH c.item WHERE c.item.id = :itemId")
+    List<Comment> findAllByItemId(@Param("itemId") Long itemId);
 }
