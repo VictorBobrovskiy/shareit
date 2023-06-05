@@ -46,7 +46,7 @@ public class BookingServiceImpl implements BookingService {
 
         booking.setBooker(booker);
         booking.setItem(item);
-        booking.setStatus("WAITING");
+        booking.setStatus(Status.WAITING);
         return bookingRepository.save(booking);
     }
 
@@ -54,13 +54,13 @@ public class BookingServiceImpl implements BookingService {
     @Override
     public Booking approveBooking(Long userId, Long id, Boolean approved) {
         Booking booking = bookingRepository.findById(id).orElseThrow(() -> new BookingNotFoundException("Booking not found"));
-        if ("APPROVED".equals(booking.getStatus())) {
+        if (Status.APPROVED.equals(booking.getStatus())) {
             throw new ValidationException("Booking has already been approved");
         }
         if (!userId.equals(booking.getItem().getOwner().getId())) {
             throw new UserNotFoundException("Only owners can change status");
         }
-        booking.setStatus(approved ? "APPROVED" : "REJECTED");
+        booking.setStatus(approved ? Status.APPROVED : Status.REJECTED);
         return booking;
     }
 
@@ -89,7 +89,7 @@ public class BookingServiceImpl implements BookingService {
     }
 
     private List<Booking> filterBookingsByState(List<Booking> bookingList, String state) {
-        String status;
+        Status status;
         LocalDateTime now = LocalDateTime.now();
         switch (state.toUpperCase()) {
             case "ALL":
@@ -107,16 +107,16 @@ public class BookingServiceImpl implements BookingService {
                         .filter(b -> b.getStart().isAfter(now))
                         .collect(Collectors.toList());
             case "WAITING":
-                status = "WAITING";
+                status = Status.WAITING;
                 break;
             case "APPROVED":
-                status = "APPROVED";
+                status = Status.APPROVED;
                 break;
             case "REJECTED":
-                status = "REJECTED";
+                status = Status.REJECTED;
                 break;
             case "CANCELLED":
-                status = "CANCELLED";
+                status = Status.CANCELLED;
                 break;
             default:
                 throw new IllegalArgumentException("Unknown state: " + state);

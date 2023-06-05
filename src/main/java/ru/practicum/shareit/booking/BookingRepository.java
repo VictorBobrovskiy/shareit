@@ -3,13 +3,11 @@ package ru.practicum.shareit.booking;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
-import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
-@Repository
 public interface BookingRepository extends JpaRepository<Booking, Long> {
 
     @Query("SELECT b FROM Booking b JOIN FETCH b.booker JOIN FETCH b.item WHERE b.booker.id = :bookerId ORDER BY b.start DESC")
@@ -24,7 +22,7 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
             "JOIN item i ON b.item_id = i.id " +
             "WHERE b.item_id = :itemId " +
             "  AND b.start > :now " +
-            "  AND b.state = :approved " +
+            "  AND b.status = :approved " +
             "ORDER BY b.start ASC " +
             "LIMIT 1", nativeQuery = true)
     Optional<Booking> findFirstByItemAndStartAfterAndStatusOrderByStartAsc(
@@ -38,7 +36,7 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
             "JOIN item i ON b.item_id = i.id " +
             "WHERE b.item_id = :itemId " +
             "  AND b.start < :now " +
-            "  AND b.state = :approved " +
+            "  AND b.status = :approved " +
             "ORDER BY b.start DESC " +
             "LIMIT 1", nativeQuery = true)
     Optional<Booking> findFirstByItemAndStartBeforeAndStatusOrderByStartDesc(

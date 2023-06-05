@@ -32,7 +32,7 @@ public class BookingDto implements Comparable<BookingDto> {
 
     private String itemName;
 
-    private String status;
+    private Status status;
 
     @Override
     public int compareTo(BookingDto o) {
