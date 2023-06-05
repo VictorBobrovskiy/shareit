@@ -3,37 +3,41 @@ package ru.practicum.shareit.user;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import ru.practicum.shareit.item.Item;
 
+import javax.persistence.*;
 import javax.validation.constraints.Email;
-import javax.validation.constraints.NotNull;
-import java.util.ArrayList;
-import java.util.List;
+import javax.validation.constraints.NotBlank;
 
-/**
- * TODO Sprint add-controllers.
- */
-@Data
+
 @AllArgsConstructor
 @NoArgsConstructor
+@Entity
+@Table(name = "users")
+@Data
 public class User {
 
-    @NotNull
-    private int id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
+    private Long id;
 
-    @NotNull
+    @NotBlank
+    @Column(name = "name")
     private String name;
 
     @Email
-    @NotNull
+    @NotBlank
+    @Column(name = "email", unique = true)
     private String email;
 
-    private List<Item> items;
-
-    public User(int id, String name, String email) {
+    public User(Long id) {
         this.id = id;
+    }
+
+    public User(String name) {
         this.name = name;
-        this.email = email;
-        this.items = new ArrayList<>();
     }
 }
+
+
+

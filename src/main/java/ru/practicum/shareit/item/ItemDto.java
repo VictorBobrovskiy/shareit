@@ -1,30 +1,47 @@
 package ru.practicum.shareit.item;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
+import ru.practicum.shareit.booking.BookingDto;
+import ru.practicum.shareit.comment.CommentDto;
 
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+import java.util.List;
 
-/**
- * TODO Sprint add-controllers.
- */
 
 @Data
-@AllArgsConstructor
-@NoArgsConstructor
-public class ItemDto {
+public class ItemDto implements Comparable<ItemDto> {
 
-    private int id;
+    private Long id;
 
-    @NotBlank
+    @NotBlank(message = "Name should not be empty")
     private String name;
 
-    @NotBlank
+    @NotBlank(message = "Description should not be empty")
     private String description;
 
-    @NotBlank
+    @NotNull(message = "Available should not be empty")
     private Boolean available;
 
-    private int requestId;
+    private Long requestId;
+
+    private BookingDto lastBooking;
+
+    private BookingDto nextBooking;
+
+    private List<CommentDto> comments;
+
+
+    public ItemDto(Long id, String name, String description, Boolean available, Long requestId) {
+        this.id = id;
+        this.name = name;
+        this.description = description;
+        this.available = available;
+        this.requestId = requestId;
+    }
+
+    @Override
+    public int compareTo(ItemDto o) {
+        return this.getId().compareTo(o.getId());
+    }
 }

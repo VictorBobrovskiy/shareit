@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.List;
 
 
@@ -22,20 +23,20 @@ public class UserController {
     }
 
     @GetMapping("/{id}")
-    public UserDto getUser(@PathVariable("id") int id) {
+    public UserDto getUser(@PathVariable("id") Long id) {
         log.debug("Users with id " + id + " requested");
         return userService.getUser(id);
     }
 
 
     @PostMapping
-    public UserDto addUser(@RequestBody UserDto userDto) {
+    public UserDto addUser(@RequestBody @Valid UserDto userDto) {
         log.debug("New user requested");
         return userService.addUser(userDto);
     }
 
     @PatchMapping(path = "/{id}")
-    public UserDto update(@PathVariable int id, @RequestBody UserDto userDto) {
+    public UserDto update(@PathVariable Long id, @RequestBody UserDto userDto) {
         userDto.setId(id);
         log.debug("User update requested");
         return userService.update(userDto);
@@ -43,7 +44,7 @@ public class UserController {
     }
 
     @DeleteMapping("/{id}")
-    public void deleteUser(@PathVariable("id") int id) {
+    public void deleteUser(@PathVariable("id") Long id) {
         log.debug("User delete requested");
         userService.delete(id);
     }

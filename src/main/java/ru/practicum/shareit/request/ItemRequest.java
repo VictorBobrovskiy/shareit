@@ -2,30 +2,41 @@ package ru.practicum.shareit.request;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import ru.practicum.shareit.item.Item;
+import lombok.NoArgsConstructor;
 import ru.practicum.shareit.user.User;
 
-import java.time.LocalDate;
+import javax.persistence.*;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+import java.sql.Date;
 
-/**
- * TODO Sprint add-item-requests.
- */
-
+@Entity
+@Table(name = "item_request")
 @Data
 @AllArgsConstructor
+@NoArgsConstructor
 public class ItemRequest {
 
-    private int id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
+    private Long id;
 
-    private LocalDate from;
+    @NotBlank(message = "Description should not be empty")
+    @Column(name = "description")
+    private String description;
 
-    private LocalDate to;
+    @NotNull(message = "User from should not be empty")
+    @ManyToOne
+    @JoinColumn(name = "user_id", referencedColumnName = "id")
+    private User requester;
 
-    private Item item;
+    @NotNull(message = "Date to should not be empty")
+    @Column(name = "created")
+    private Date created;
 
-    private User user;
-
-    public ItemRequest(int id) {
+    public ItemRequest(Long id) {
         this.id = id;
     }
+
 }

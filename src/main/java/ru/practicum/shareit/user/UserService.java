@@ -6,13 +6,13 @@ public interface UserService {
 
     List<UserDto> findAll();
 
-    UserDto getUser(int id);
+    UserDto getUser(Long id);
 
     UserDto addUser(UserDto userDto);
 
     UserDto update(UserDto userDto);
 
 
-    void delete(int id);
+    void delete(Long id);
 
 }
