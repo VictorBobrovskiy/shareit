@@ -51,7 +51,7 @@ CREATE TABLE IF NOT EXISTS booking
     finish  TIMESTAMP                               NOT NULL,
     item_id BIGINT                                  NOT NULL,
     user_id BIGINT                                  NOT NULL,
-    status   VARCHAR(31)                             NOT NULL,
+    status  VARCHAR(31)                             NOT NULL,
     CONSTRAINT pk_booking PRIMARY KEY (id),
     CONSTRAINT fk_booking_item FOREIGN KEY (item_id) REFERENCES item (id) ON DELETE CASCADE,
     CONSTRAINT fk_booking_users FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE

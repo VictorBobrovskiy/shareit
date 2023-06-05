@@ -66,8 +66,11 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     public Booking getBooking(Long userId, Long id) {
-        Booking booking = bookingRepository.findById(id).orElseThrow(() -> new BookingNotFoundException("Booking not found"));
-        if (!Objects.equals(userId, booking.getItem().getOwner().getId()) && !Objects.equals(userId, booking.getBooker().getId())) {
+        Booking booking = bookingRepository.findById(id).orElseThrow(
+                () -> new BookingNotFoundException("Booking not found"));
+
+        if (!Objects.equals(userId, booking.getItem().getOwner().getId())
+                && !Objects.equals(userId, booking.getBooker().getId())) {
             throw new UserAccessException("You are neither the booker nor the owner of the item to be booked");
         } else {
             return booking;
