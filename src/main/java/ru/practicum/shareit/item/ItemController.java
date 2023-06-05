@@ -16,7 +16,7 @@ public class ItemController {
 
     private final ItemService itemService;
 
-    private final static String USER = "X-Sharer-User-Id";
+    private final String USER = "X-Sharer-User-Id";
 
     @GetMapping
     public List<ItemDto> getAll(@RequestHeader(USER) Long userId) {

@@ -16,7 +16,7 @@ public class BookingController {
 
     private final BookingService bookingService;
 
-    private final static String USER = "X-Sharer-User-Id";
+    private final String USER = "X-Sharer-User-Id";
 
     @PostMapping
     public Booking addNewBooking(@RequestHeader(USER) Long userId,
