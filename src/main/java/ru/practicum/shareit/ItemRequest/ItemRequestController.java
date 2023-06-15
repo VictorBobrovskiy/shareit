@@ -2,7 +2,6 @@ package ru.practicum.shareit.ItemRequest;
 
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -42,9 +41,9 @@ public class ItemRequestController {
     @GetMapping("/all")
     public ResponseEntity<List<ItemRequestDto>> getAllItemRequests(
             @RequestHeader(user) Long userId,
-            @RequestParam(defaultValue = "0")  int from,
-            @RequestParam(defaultValue = "20")  int size
-    )  {
+            @RequestParam(defaultValue = "0") int from,
+            @RequestParam(defaultValue = "20") int size
+    ) {
         List<ItemRequestDto> allItemRequests = itemRequestService.getAllItemRequests(from, size)
                 .stream()
                 .map(itemRequest -> new ModelMapper().map(itemRequest, ItemRequestDto.class))
@@ -57,7 +56,7 @@ public class ItemRequestController {
     public ResponseEntity<ItemRequestDto> getItemRequest(
             @RequestHeader(user) Long userId,
             @PathVariable("requestId") long ItemRequestId
-    )   {
+    ) {
         ItemRequestDto itemRequestDto = new ModelMapper().map(itemRequestService.getItemRequest(ItemRequestId), ItemRequestDto.class);
         return new ResponseEntity<>(itemRequestDto, HttpStatus.OK);
     }
