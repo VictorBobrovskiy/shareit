@@ -1,7 +1,7 @@
 package ru.practicum.shareit.item;
 
 
-import ru.practicum.shareit.request.ItemRequest;
+import ru.practicum.shareit.ItemRequest.ItemRequest;
 
 
 public class ItemMapper {
