@@ -57,7 +57,7 @@ public class ItemRequestController {
             @RequestHeader(user) Long userId,
             @PathVariable("requestId") long ItemRequestId
     ) {
-        ItemRequestDto itemRequestDto = new ModelMapper().map(itemRequestService.getItemRequest(ItemRequestId), ItemRequestDto.class);
+        ItemRequestDto itemRequestDto = itemRequestService.getItemRequest(userId, ItemRequestId);
         return new ResponseEntity<>(itemRequestDto, HttpStatus.OK);
     }
 }

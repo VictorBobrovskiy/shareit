@@ -9,6 +9,7 @@ import ru.practicum.shareit.user.UserNotFoundException;
 import ru.practicum.shareit.user.UserRepository;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -33,24 +34,37 @@ public class ItemRequestServiceImpl implements ItemRequestService {
     }
 
     @Override
-    public List<ItemRequest> getOwnItemRequests(Long userId) {
+    public List<ItemRequestDto> getOwnItemRequests(Long userId) {
         checkUserExists(userId);
-        return itemRequestRepository.findAllByRequesterId(userId);
+        List<ItemRequestDto> itemRequests = itemRequestRepository.findAllByRequesterId(userId)
+                .stream().map(itemRequest -> new ModelMapper().map(itemRequest, ItemRequestDto.class))
+                .collect(Collectors.toList());
+        itemRequests.forEach(itemRequestDto ->
+                itemRequestDto.setItems(new ArrayList<>(itemRepository.getAllByRequestId(itemRequestDto.getId()))));
+        return itemRequests;
     }
 
     @Override
     public List<ItemRequestDto> getAllItemRequests(int from, int size) {
+
         List<ItemRequestDto> itemRequestPage = itemRequestRepository.findAllOrderByCreated(PageRequest.of(from, size))
                 .stream().map(itemRequest -> new ModelMapper().map(itemRequest, ItemRequestDto.class))
                 .collect(Collectors.toList());
-        itemRequestPage.forEach(itemRequestDto -> itemRequestDto.setItems(itemRepository.getAllByRequestId(itemRequestDto.getId())));
+
+        itemRequestPage.forEach(itemRequestDto ->
+                itemRequestDto.setItems(new ArrayList<>(itemRepository.getAllByRequestId(itemRequestDto.getId()))));
+
         return itemRequestPage;
     }
 
     @Override
-    public ItemRequest getItemRequest(long itemRequestId) {
-        return itemRequestRepository.findById(itemRequestId)
+    public ItemRequestDto getItemRequest(Long userId, Long itemRequestId) {
+        checkUserExists(userId);
+        ItemRequest itemRequest = itemRequestRepository.findById(itemRequestId)
                 .orElseThrow(() -> new ItemRequestNotFoundException("ItemRequest not found"));
+        ItemRequestDto dto = new ModelMapper().map(itemRequest, ItemRequestDto.class);
+        dto.setItems(new ArrayList<>(itemRepository.getAllByRequestId(dto.getId())));
+        return dto;
     }
 
     private void checkUserExists(Long ownerId) {

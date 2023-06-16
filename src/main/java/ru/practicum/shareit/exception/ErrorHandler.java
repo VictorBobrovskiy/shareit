@@ -6,6 +6,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import ru.practicum.shareit.ItemRequest.ItemRequestNotFoundException;
 import ru.practicum.shareit.booking.BookingNotFoundException;
 import ru.practicum.shareit.item.ItemNotFoundException;
 import ru.practicum.shareit.user.UserAccessException;
@@ -31,7 +32,7 @@ public class ErrorHandler {
     }
 
     @ExceptionHandler({UserNotFoundException.class, ItemNotFoundException.class, BookingNotFoundException.class,
-            UserAccessException.class})
+            UserAccessException.class, ItemRequestNotFoundException.class})
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorResponse handleUserNotFound(Exception e) {
         return new ErrorResponse(e.getMessage());
