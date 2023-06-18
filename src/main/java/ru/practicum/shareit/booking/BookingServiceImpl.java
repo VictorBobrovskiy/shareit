@@ -96,16 +96,24 @@ public class BookingServiceImpl implements BookingService {
     @Override
     public List<Booking> getAllByBookerId(Long bookerId, String state, int from, int size) {
         checkUserExists(bookerId);
-        Page<Booking> bookingList = bookingRepository
-                .findAllBookingsByBookerIdOrderByStartDesc(bookerId, PageRequest.of(from, size));
-        return filterBookingsByState(bookingList.toList(), state);
+        if (size < 1 || from < 0) {
+            throw new IllegalArgumentException("Wrong page number");
+        }
+        int pageNum = from/size;
+        Page<Booking> bookingPage = bookingRepository
+                .findAllBookingsByBookerIdOrderByStartDesc(bookerId, PageRequest.of(pageNum, size));
+        return filterBookingsByState(bookingPage.toList(), state);
     }
 
     @Override
     public List<Booking> getAllByOwnerId(Long ownerId, String state, int from, int size) {
         checkUserExists(ownerId);
+        if (size < 1 || from < 0) {
+            throw new IllegalArgumentException("Wrong page number");
+        }
+        int pageNum = from/size;
         Page<Booking> bookingList = bookingRepository
-                .findAllBookingsByItemOwnerIdOrderByStartDesc(ownerId, PageRequest.of(from, size));
+                .findAllBookingsByItemOwnerIdOrderByStartDesc(ownerId, PageRequest.of(pageNum, size));
         return filterBookingsByState(bookingList.toList(), state);
     }
 

@@ -2,6 +2,7 @@ package ru.practicum.shareit.ItemRequest;
 
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.item.ItemDto;
@@ -19,19 +20,14 @@ import java.util.stream.Collectors;
 public class ItemRequestServiceImpl implements ItemRequestService {
 
     private final ItemRequestRepository itemRequestRepository;
-
     private final UserRepository userRepository;
-
     private final ItemRepository itemRepository;
-
     private final ModelMapper modelMapper;
-
 
     @Override
     public ItemRequestDto createItemRequest(Long userId, ItemRequestDto itemRequestDto) {
         ItemRequest request = modelMapper.map(itemRequestDto, ItemRequest.class);
-        request.setRequester(userRepository.findById(userId).orElseThrow(
-                () -> new UserNotFoundException("User not found")));
+        request.setRequester(userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException("User not found")));
         request.setCreated(LocalDateTime.now());
         return modelMapper.map(itemRequestRepository.save(request), ItemRequestDto.class);
     }
@@ -39,51 +35,36 @@ public class ItemRequestServiceImpl implements ItemRequestService {
     @Override
     public List<ItemRequestDto> getOwnItemRequests(Long userId) {
         checkUserExists(userId);
-        List<ItemRequestDto> itemRequests = itemRequestRepository.findAllByRequesterId(userId)
-                .stream().map(itemRequest -> modelMapper.map(itemRequest, ItemRequestDto.class))
+        return itemRequestRepository.findAllByRequesterId(userId).stream()
+                .map(this::mapItemRequestDtoWithItems)
                 .collect(Collectors.toList());
-
-        itemRequests.forEach(itemRequestDto -> {
-            List<ItemDto> itemDtoList = itemRepository.getAllByRequestId(itemRequestDto.getId())
-                    .stream()
-                    .map(item -> ItemMapper.mapItemToDto(item))
-                    .collect(Collectors.toList());
-
-            itemRequestDto.setItems(itemDtoList);
-        });
-
-
-        return itemRequests;
     }
 
     @Override
     public List<ItemRequestDto> getAllItemRequests(int from, int size) {
-
-        List<ItemRequestDto> itemRequestPage = itemRequestRepository.findAllOrderByCreated(PageRequest.of(from, size))
-                .stream().map(itemRequest -> modelMapper.map(itemRequest, ItemRequestDto.class))
+        if (from < 0 || size < 1) {
+            throw new IllegalArgumentException("Wrong page number");
+        }
+        int pageNum = from/size;
+        return itemRequestRepository.findAllOrderByCreated(PageRequest.of((int) pageNum, size))
+                .stream()
+                .map(this::mapItemRequestDtoWithItems)
                 .collect(Collectors.toList());
-
-        itemRequestPage.forEach(itemRequestDto -> {
-            List<ItemDto> itemDtoList = itemRepository.getAllByRequestId(itemRequestDto.getId())
-                    .stream()
-                    .map(item -> ItemMapper.mapItemToDto(item))
-                    .collect(Collectors.toList());
-
-            itemRequestDto.setItems(itemDtoList);
-        });
-
-        return itemRequestPage;
-    }
+             }
 
     @Override
     public ItemRequestDto getItemRequest(Long userId, Long itemRequestId) {
         checkUserExists(userId);
         ItemRequest itemRequest = itemRequestRepository.findById(itemRequestId)
                 .orElseThrow(() -> new ItemRequestNotFoundException("ItemRequest not found"));
+        return mapItemRequestDtoWithItems(itemRequest);
+    }
+
+    private ItemRequestDto mapItemRequestDtoWithItems(ItemRequest itemRequest) {
         ItemRequestDto itemRequestDto = modelMapper.map(itemRequest, ItemRequestDto.class);
-        List<ItemDto> itemDtoList = itemRepository.getAllByRequestId(itemRequestDto.getId())
+        List<ItemDto> itemDtoList = itemRepository.getAllByRequestId(itemRequest.getId())
                 .stream()
-                .map(item -> ItemMapper.mapItemToDto(item))
+                .map(ItemMapper::mapItemToDto)
                 .collect(Collectors.toList());
         itemRequestDto.setItems(itemDtoList);
         return itemRequestDto;
