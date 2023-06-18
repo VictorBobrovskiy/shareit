@@ -39,7 +39,10 @@ public class ItemServiceImpl implements ItemService {
 
     private final ItemRequestRepository itemRequestRepository;
 
-    public List<ItemDto> getItems(Long userId) {
+    public List<ItemDto> getItems(Long userId, int from, int size) {
+        if (size < 1 || from < 0) {
+            throw new IllegalArgumentException("Wrong page number");
+        }
         return itemRepository.findAllItemsByOwnerIdOrderById(userId).stream()
                 .map(item -> {
                     ItemDto itemDto = ItemMapper.mapItemToDto(item);
@@ -124,9 +127,12 @@ public class ItemServiceImpl implements ItemService {
 
 
     @Override
-    public List<ItemDto> searchForItems(String text) {
+    public List<ItemDto> searchForItems(String text, int from, int size) {
         if (text.isBlank()) {
             return new ArrayList<>();
+        }
+        if (size < 1 || from < 0) {
+            throw new IllegalArgumentException("Wrong page number");
         }
         String query = text.toLowerCase();
         return itemRepository.findAllItemsByDescriptionContainingIgnoreCaseAndAvailableTrue(query)

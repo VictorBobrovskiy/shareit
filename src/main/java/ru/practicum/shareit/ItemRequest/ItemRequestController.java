@@ -37,7 +37,7 @@ public class ItemRequestController {
     public ResponseEntity<List<ItemRequestDto>> getAllItemRequests(
             @RequestHeader(user) Long userId,
             @RequestParam(defaultValue = "0") int from,
-            @RequestParam(defaultValue = "10") int size
+            @RequestParam(defaultValue = "20") int size
     ) {
         List<ItemRequestDto> allItemRequests = itemRequestService.getAllItemRequests(userId, from, size);
 
