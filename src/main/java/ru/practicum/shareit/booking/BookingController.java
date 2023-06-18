@@ -5,8 +5,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import javax.validation.constraints.Min;
-import javax.validation.constraints.Positive;
 import java.util.List;
 
 
@@ -45,8 +43,8 @@ public class BookingController {
     @GetMapping
     public List<Booking> getAllByBookerId(@RequestHeader(user) Long bookerId,
                                           @RequestParam(defaultValue = "ALL") String state,
-                                          @RequestParam(defaultValue = "0")  int from,
-                                          @RequestParam(defaultValue = "20")  int size
+                                          @RequestParam(defaultValue = "0") int from,
+                                          @RequestParam(defaultValue = "20") int size
     ) {
         log.debug("Bookings by booker requested");
         return bookingService.getAllByBookerId(bookerId, state, from, size);
@@ -56,7 +54,7 @@ public class BookingController {
     public List<Booking> getAllByOwnerId(@RequestHeader(user) Long ownerId,
                                          @RequestParam(defaultValue = "ALL") String state,
                                          @RequestParam(defaultValue = "0") int from,
-                                         @RequestParam(defaultValue = "20")  int size
+                                         @RequestParam(defaultValue = "20") int size
     ) {
         log.debug("Bookings by owner requested");
         return bookingService.getAllByOwnerId(ownerId, state, from, size);

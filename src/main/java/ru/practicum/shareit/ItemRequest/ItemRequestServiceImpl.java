@@ -2,7 +2,6 @@ package ru.practicum.shareit.ItemRequest;
 
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.item.ItemDto;
@@ -41,16 +40,17 @@ public class ItemRequestServiceImpl implements ItemRequestService {
     }
 
     @Override
-    public List<ItemRequestDto> getAllItemRequests(int from, int size) {
+    public List<ItemRequestDto> getAllItemRequests(Long userId, int from, int size) {
         if (from < 0 || size < 1) {
             throw new IllegalArgumentException("Wrong page number");
         }
-        int pageNum = from/size;
-        return itemRequestRepository.findAllOrderByCreated(PageRequest.of((int) pageNum, size))
+        int pageNum = from / size;
+        return itemRequestRepository.findAllOrderByCreated(PageRequest.of(pageNum, size))
                 .stream()
+                .filter(itemRequest -> itemRequest.getRequester().getId() != userId)
                 .map(this::mapItemRequestDtoWithItems)
                 .collect(Collectors.toList());
-             }
+    }
 
     @Override
     public ItemRequestDto getItemRequest(Long userId, Long itemRequestId) {

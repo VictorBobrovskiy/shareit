@@ -6,8 +6,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import javax.validation.constraints.Min;
-import javax.validation.constraints.Positive;
 import java.util.List;
 
 @RestController
@@ -41,7 +39,7 @@ public class ItemRequestController {
             @RequestParam(defaultValue = "0") int from,
             @RequestParam(defaultValue = "10") int size
     ) {
-        List<ItemRequestDto> allItemRequests = itemRequestService.getAllItemRequests(from, size);
+        List<ItemRequestDto> allItemRequests = itemRequestService.getAllItemRequests(userId, from, size);
 
         return new ResponseEntity<>(allItemRequests, HttpStatus.OK);
     }

@@ -99,7 +99,7 @@ public class BookingServiceImpl implements BookingService {
         if (size < 1 || from < 0) {
             throw new IllegalArgumentException("Wrong page number");
         }
-        int pageNum = from/size;
+        int pageNum = from / size;
         Page<Booking> bookingPage = bookingRepository
                 .findAllBookingsByBookerIdOrderByStartDesc(bookerId, PageRequest.of(pageNum, size));
         return filterBookingsByState(bookingPage.toList(), state);
@@ -111,7 +111,7 @@ public class BookingServiceImpl implements BookingService {
         if (size < 1 || from < 0) {
             throw new IllegalArgumentException("Wrong page number");
         }
-        int pageNum = from/size;
+        int pageNum = from / size;
         Page<Booking> bookingList = bookingRepository
                 .findAllBookingsByItemOwnerIdOrderByStartDesc(ownerId, PageRequest.of(pageNum, size));
         return filterBookingsByState(bookingList.toList(), state);
