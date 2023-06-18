@@ -1,6 +1,8 @@
 package ru.practicum.shareit.booking;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.item.Item;
@@ -89,6 +91,22 @@ public class BookingServiceImpl implements BookingService {
         checkUserExists(ownerId);
         List<Booking> bookingList = bookingRepository.findAllBookingsByItemOwnerIdOrderByStartDesc(ownerId);
         return filterBookingsByState(bookingList, state);
+    }
+
+    @Override
+    public List<Booking> getAllByBookerId(Long bookerId, String state, int from, int size) {
+        checkUserExists(bookerId);
+        Page<Booking> bookingList = bookingRepository
+                .findAllBookingsByBookerIdOrderByStartDesc(bookerId, PageRequest.of(from, size));
+        return filterBookingsByState(bookingList.toList(), state);
+    }
+
+    @Override
+    public List<Booking> getAllByOwnerId(Long ownerId, String state, int from, int size) {
+        checkUserExists(ownerId);
+        Page<Booking> bookingList = bookingRepository
+                .findAllBookingsByItemOwnerIdOrderByStartDesc(ownerId, PageRequest.of(from, size));
+        return filterBookingsByState(bookingList.toList(), state);
     }
 
     private List<Booking> filterBookingsByState(List<Booking> bookingList, String state) {

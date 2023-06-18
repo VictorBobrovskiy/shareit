@@ -3,7 +3,7 @@ package ru.practicum.shareit.ItemRequest;
 import java.util.List;
 
 public interface ItemRequestService {
-    ItemRequest createItemRequest(Long userId, ItemRequestDto itemRequestDto);
+    ItemRequestDto createItemRequest(Long userId, ItemRequestDto itemRequestDto);
 
     List<ItemRequestDto> getOwnItemRequests(Long userId);
 

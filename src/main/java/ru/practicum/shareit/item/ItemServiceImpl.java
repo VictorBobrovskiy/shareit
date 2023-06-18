@@ -2,6 +2,7 @@ package ru.practicum.shareit.item;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import ru.practicum.shareit.ItemRequest.ItemRequestRepository;
 import ru.practicum.shareit.booking.Booking;
 import ru.practicum.shareit.booking.BookingMapper;
 import ru.practicum.shareit.booking.BookingRepository;
@@ -35,6 +36,8 @@ public class ItemServiceImpl implements ItemService {
     private final BookingRepository bookingRepository;
 
     private final CommentRepository commentRepository;
+
+    private final ItemRequestRepository itemRequestRepository;
 
     public List<ItemDto> getItems(Long userId) {
         return itemRepository.findAllItemsByOwnerIdOrderById(userId).stream()
@@ -82,6 +85,7 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public ItemDto addNewItem(Long userId, ItemDto itemDto) {
+
         Item item = ItemMapper.mapDtoToItem(itemDto);
         item.setOwner(userRepository.findById(userId).orElseThrow(
                 () -> new UserNotFoundException("User not found")));
