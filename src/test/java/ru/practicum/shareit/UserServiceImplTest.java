@@ -60,7 +60,7 @@ class UserServiceImplTest {
     }
 
     @Test
-    void getUserByNonexistentId() {
+    void getUserByInvalidId() {
         Long userId = 1L;
         when(userRepository.findById(userId)).thenReturn(Optional.empty());
 
@@ -100,7 +100,7 @@ class UserServiceImplTest {
     }
 
     @Test
-    void updateNonexistentUser() {
+    void updateInvalidUser() {
         Long userId = 1L;
         UserDto userDto = new UserDto(userId, "John Doe", "johndoe@example.com");
         when(userRepository.findById(userId)).thenReturn(Optional.empty());

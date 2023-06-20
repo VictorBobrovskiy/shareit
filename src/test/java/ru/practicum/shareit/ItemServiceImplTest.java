@@ -52,8 +52,7 @@ class ItemServiceImplTest {
 
 
     @Test
-    void getItem_ValidUserIdAndItemId_ReturnsItemDto() {
-        // Arrange
+    void getItemValidUserIdAndItemId() {
         Long userId = 1L;
         Long itemId = 1L;
         Item item = new Item(itemId, "Item 1", "Description 1", true, new ItemRequest());
@@ -63,10 +62,8 @@ class ItemServiceImplTest {
         when(bookingRepository.findFirstByItemAndStartBeforeAndStatusOrderByStartDesc(anyLong(), any(LocalDateTime.class), any())).thenReturn(Optional.empty());
         when(commentRepository.findAllByItemId(itemId)).thenReturn(new ArrayList<>());
 
-        // Act
         ItemDto result = itemService.getItem(userId, itemId);
 
-        // Assert
         assertNotNull(result);
         assertEquals(item.getName(), result.getName());
         assertEquals(item.getDescription(), result.getDescription());
@@ -79,13 +76,11 @@ class ItemServiceImplTest {
     }
 
     @Test
-    void getItem_InvalidItemId_ThrowsItemNotFoundException() {
-        // Arrange
+    void getItemInvalidItemId() {
         Long userId = 1L;
         Long itemId = 1L;
         when(itemRepository.findById(itemId)).thenReturn(Optional.empty());
 
-        // Act and Assert
         assertThrows(ItemNotFoundException.class, () -> itemService.getItem(userId, itemId));
         verify(itemRepository).findById(itemId);
         verify(bookingRepository, never()).findFirstByItemAndStartAfterAndStatusOrderByStartAsc(anyLong(), any(LocalDateTime.class), any());
@@ -95,8 +90,7 @@ class ItemServiceImplTest {
 
 
     @Test
-    void addNewItem_ValidUserIdAndItemDto_ReturnsItemDto() {
-        // Arrange
+    void addNewItemValidUserIdAndItem() {
         Long userId = 1L;
         ItemDto itemDto = new ItemDto();
         itemDto.setName("Item 1");
@@ -110,10 +104,8 @@ class ItemServiceImplTest {
             return savedItem;
         });
 
-        // Act
         ItemDto result = itemService.addNewItem(userId, itemDto);
 
-        // Assert
         assertNotNull(result);
         assertEquals(itemDto.getName(), result.getName());
         assertEquals(itemDto.getDescription(), result.getDescription());
@@ -123,20 +115,18 @@ class ItemServiceImplTest {
     }
 
     @Test
-    void deleteItem_InvalidItemId_ThrowsItemNotFoundException() {
-        // Arrange
+    void deleteItemInvalidItemId() {
         Long userId = 1L;
         Long itemId = 1L;
         when(itemRepository.findById(itemId)).thenReturn(Optional.empty());
 
-        // Act and Assert
         assertThrows(ItemNotFoundException.class, () -> itemService.deleteItem(userId, itemId));
         verify(itemRepository).findById(itemId);
         verify(itemRepository, never()).deleteById(itemId);
     }
 
     @Test
-    void deleteItem_InvalidUserId_ThrowsUserAccessException() {
+    void deleteItemInvalidUserId() {
 
         Long userId = 1L;
         Long itemId = 1L;
@@ -149,7 +139,7 @@ class ItemServiceImplTest {
 
 
     @Test
-    void updateItem_InvalidItemId_ThrowsItemNotFoundException() {
+    void updateItemInvalidItemId() {
 
         Long userId = 1L;
         Long itemId = 1L;
@@ -162,7 +152,7 @@ class ItemServiceImplTest {
     }
 
     @Test
-    void updateItem_InvalidUserId_ThrowsUserAccessException() {
+    void updateItemInvalidUserId() {
 
         Long userId = 1L;
         Long itemId = 1L;
@@ -174,8 +164,7 @@ class ItemServiceImplTest {
     }
 
     @Test
-    void searchForItems_ValidText_ReturnsMatchingItems() {
-        // Arrange
+    void searchForItemsValidText() {
         String searchText = "item";
         int from = 0;
         int size = 10;
@@ -184,10 +173,8 @@ class ItemServiceImplTest {
         List<Item> items = Arrays.asList(item1, item2);
         when(itemRepository.findAllItemsByDescriptionContainingIgnoreCaseAndAvailableTrue(searchText)).thenReturn(items);
 
-        // Act
         List<ItemDto> result = itemService.searchForItems(searchText, from, size);
 
-        // Assert
         assertNotNull(result);
         assertEquals(2, result.size());
         assertEquals(item1.getName(), result.get(0).getName());
