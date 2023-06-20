@@ -80,20 +80,6 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public List<Booking> getAllByBookerId(Long bookerId, String state) {
-        checkUserExists(bookerId);
-        List<Booking> bookingList = bookingRepository.findAllBookingsByBookerIdOrderByStartDesc(bookerId);
-        return filterBookingsByState(bookingList, state);
-    }
-
-    @Override
-    public List<Booking> getAllByOwnerId(Long ownerId, String state) {
-        checkUserExists(ownerId);
-        List<Booking> bookingList = bookingRepository.findAllBookingsByItemOwnerIdOrderByStartDesc(ownerId);
-        return filterBookingsByState(bookingList, state);
-    }
-
-    @Override
     public List<Booking> getAllByBookerId(Long bookerId, String state, int from, int size) {
         checkUserExists(bookerId);
         if (size < 1 || from < 0) {

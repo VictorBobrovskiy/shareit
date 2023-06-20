@@ -34,6 +34,9 @@ public class BookingDto implements Comparable<BookingDto> {
 
     private Status status;
 
+    public BookingDto() {
+    }
+
     @Override
     public int compareTo(BookingDto o) {
         return this.getStart().compareTo(o.getStart());

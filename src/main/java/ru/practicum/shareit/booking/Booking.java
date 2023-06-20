@@ -49,4 +49,8 @@ public class Booking {
     @Enumerated(EnumType.STRING)
     private Status status;
 
+    public Booking(long id, LocalDateTime end) {
+        this.id = id;
+        this.end = end;
+    }
 }

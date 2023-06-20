@@ -11,10 +11,10 @@ import ru.practicum.shareit.booking.BookingRepository;
 import ru.practicum.shareit.comment.Comment;
 import ru.practicum.shareit.comment.CommentDto;
 import ru.practicum.shareit.comment.CommentRepository;
+import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.item.*;
-import ru.practicum.shareit.user.UserAccessException;
-import ru.practicum.shareit.user.UserNotFoundException;
 import ru.practicum.shareit.user.User;
+import ru.practicum.shareit.user.UserNotFoundException;
 import ru.practicum.shareit.user.UserRepository;
 
 import java.time.LocalDateTime;
@@ -184,5 +184,108 @@ class ItemServiceImplTest {
         verify(itemRepository).findAllItemsByDescriptionContainingIgnoreCaseAndAvailableTrue(searchText);
     }
 
+    @Test
+    public void getNextBookingValidData() {
+        Item item = new Item();
+        item.setId(1L);
+
+        LocalDateTime now = LocalDateTime.now();
+        Booking nextBooking = new Booking();
+        nextBooking.setItem(item);
+
+        when(bookingRepository.findFirstByItemAndStartAfterAndStatusOrderByStartAsc(item.getId(), now, "APPROVED"))
+                .thenReturn(Optional.of(nextBooking));
+
+        Booking result = itemService.getNextBooking(item);
+
+        assertEquals(null, result);
+    }
+
+    @Test
+    public void getNextBookingNoBookingFound() {
+        Item item = new Item();
+        item.setId(1L);
+
+        LocalDateTime now = LocalDateTime.now();
+
+        when(bookingRepository.findFirstByItemAndStartAfterAndStatusOrderByStartAsc(item.getId(), now, "APPROVED"))
+                .thenReturn(Optional.empty());
+
+        Booking result = itemService.getNextBooking(item);
+
+        assertNull(result);
+    }
+
+    @Test
+    public void addNewCommentValidData() {
+        Long userId = 1L;
+        Long itemId = 1L;
+
+        Item item = new Item();
+        item.setId(itemId);
+
+        User author = new User();
+        author.setId(userId);
+
+        LocalDateTime now = LocalDateTime.now();
+
+        CommentDto commentDto = new CommentDto();
+        commentDto.setItemId(itemId);
+        commentDto.setAuthorName(author.getName());
+
+        List<Booking> bookings = new ArrayList<>();
+        Booking pastBooking = new Booking();
+        pastBooking.setEnd(now.minusDays(1));
+        pastBooking.setItem(item);
+        bookings.add(pastBooking);
+
+        when(bookingRepository.findAllBookingsByBookerIdOrderByStartDesc(userId)).thenReturn(bookings);
+        when(userRepository.findById(userId)).thenReturn(Optional.of(author));
+        when(itemRepository.findById(itemId)).thenReturn(Optional.of(item));
+
+        Comment comment = new Comment();
+        comment.setItem(item);
+        comment.setAuthor(author);
+        comment.setCreated(LocalDateTime.now());
+
+        when(commentRepository.save(any(Comment.class))).thenReturn(comment);
+
+        CommentDto result = itemService.addNewComment(userId, itemId, commentDto);
+
+        assertNotNull(result);
+        assertEquals(comment.getItem().getId(), result.getItemId());
+    }
+
+    @Test
+    public void addNewCommentNoPastBookings() {
+        Long userId = 1L;
+        Long itemId = 1L;
+        CommentDto commentDto = new CommentDto();
+        List<Booking> bookings = new ArrayList<>();
+
+        when(bookingRepository.findAllBookingsByBookerIdOrderByStartDesc(userId)).thenReturn(bookings);
+
+        assertThrows(ValidationException.class, () -> itemService.addNewComment(userId, itemId, commentDto));
+
+    }
+
+    @Test
+    public void addNewCommentInvalidUser() {
+        Long userId = 1L;
+        Long itemId = 1L;
+        Item item = new Item(itemId);
+        CommentDto commentDto = new CommentDto();
+        List<Booking> bookings = new ArrayList<>();
+        Booking pastBooking = new Booking();
+        pastBooking.setEnd(LocalDateTime.now().minusDays(1));
+        pastBooking.setItem(item);
+        bookings.add(pastBooking);
+
+        when(bookingRepository.findAllBookingsByBookerIdOrderByStartDesc(userId)).thenReturn(bookings);
+        when(userRepository.findById(userId)).thenReturn(Optional.empty());
+
+        assertThrows(UserNotFoundException.class, () -> itemService.addNewComment(userId, itemId, commentDto));
+
+    }
 
 }

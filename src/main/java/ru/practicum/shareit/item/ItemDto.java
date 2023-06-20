@@ -40,7 +40,8 @@ public class ItemDto implements Comparable<ItemDto> {
         this.requestId = requestId;
     }
 
-    public ItemDto(){}
+    public ItemDto() {
+    }
 
     @Override
     public int compareTo(ItemDto o) {
