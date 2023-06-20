@@ -31,7 +31,7 @@ public class ItemRequest {
     @JoinColumn(name = "user_id", referencedColumnName = "id")
     private User requester;
 
-    @NotNull(message = "Date to should not be empty")
+    @NotNull(message = "Date should not be empty")
     @Column(name = "created")
     private LocalDateTime created;
 

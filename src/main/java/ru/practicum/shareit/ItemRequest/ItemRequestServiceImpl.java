@@ -21,14 +21,13 @@ public class ItemRequestServiceImpl implements ItemRequestService {
     private final ItemRequestRepository itemRequestRepository;
     private final UserRepository userRepository;
     private final ItemRepository itemRepository;
-    private final ModelMapper modelMapper;
 
     @Override
     public ItemRequestDto createItemRequest(Long userId, ItemRequestDto itemRequestDto) {
-        ItemRequest request = modelMapper.map(itemRequestDto, ItemRequest.class);
+        ItemRequest request = ItemRequestMapper.toEntity(itemRequestDto);
         request.setRequester(userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException("User not found")));
         request.setCreated(LocalDateTime.now());
-        return modelMapper.map(itemRequestRepository.save(request), ItemRequestDto.class);
+        return ItemRequestMapper.toDto(itemRequestRepository.save(request));
     }
 
     @Override
@@ -61,7 +60,7 @@ public class ItemRequestServiceImpl implements ItemRequestService {
     }
 
     private ItemRequestDto mapItemRequestDtoWithItems(ItemRequest itemRequest) {
-        ItemRequestDto itemRequestDto = modelMapper.map(itemRequest, ItemRequestDto.class);
+        ItemRequestDto itemRequestDto = ItemRequestMapper.toDto(itemRequest);
         List<ItemDto> itemDtoList = itemRepository.getAllByRequestId(itemRequest.getId())
                 .stream()
                 .map(ItemMapper::mapItemToDto)

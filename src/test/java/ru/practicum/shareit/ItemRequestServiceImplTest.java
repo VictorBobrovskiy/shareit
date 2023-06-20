@@ -4,7 +4,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.modelmapper.ModelMapper;
+import org.springframework.context.annotation.Bean;
 import ru.practicum.shareit.ItemRequest.*;
 import ru.practicum.shareit.item.Item;
 import ru.practicum.shareit.item.ItemRepository;
@@ -15,14 +15,34 @@ import ru.practicum.shareit.user.UserRepository;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import ru.practicum.shareit.item.Item;
+import ru.practicum.shareit.item.ItemRepository;
+import ru.practicum.shareit.user.User;
+import ru.practicum.shareit.user.UserNotFoundException;
+import ru.practicum.shareit.user.UserRepository;
+
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.*;
 
 public class ItemRequestServiceImplTest {
-
-    private ItemRequestService itemRequestService;
 
     @Mock
     private ItemRequestRepository itemRequestRepository;
@@ -33,44 +53,50 @@ public class ItemRequestServiceImplTest {
     @Mock
     private ItemRepository itemRepository;
 
-    private ModelMapper modelMapper;
+    @Mock
+    public ModelMapper modelMapper;
+
+    @InjectMocks
+    private ItemRequestServiceImpl itemRequestService;
 
     @BeforeEach
-    void setUp() {
+    public void setup() {
         MockitoAnnotations.openMocks(this);
-        itemRequestService = new ItemRequestServiceImpl(itemRequestRepository, userRepository, itemRepository, modelMapper);
+
     }
 
     @Test
     void createItemRequest_validData_itemRequestCreated() {
         Long userId = 1L;
+
+        User user = new User(userId);
+
         ItemRequestDto itemRequestDto = new ItemRequestDto();
-        itemRequestDto.setDescription("Test item request");
+        itemRequestDto.setDescription("Item Request");
 
-        when(userRepository.findById(userId)).thenReturn(Optional.of(new User()));
-        when(itemRequestRepository.save(any(ItemRequest.class))).thenAnswer(invocation -> {
-            ItemRequest savedRequest = invocation.getArgument(0);
-            savedRequest.setId(1L);
-            savedRequest.setCreated(LocalDateTime.now());
-            return savedRequest;
-        });
+        when(userRepository.findById(userId)).thenReturn(java.util.Optional.of(user));
+        when(itemRequestRepository.save(any(ItemRequest.class))).thenReturn(new ItemRequest());
+        when(userRepository.existsById(userId)).thenReturn(true);
 
-        ItemRequestDto createdRequest = itemRequestService.createItemRequest(userId, itemRequestDto);
+        ItemRequestDto result = itemRequestService.createItemRequest(userId, itemRequestDto);
 
-        assertNotNull(createdRequest);
-        assertEquals(itemRequestDto.getDescription(), createdRequest.getDescription());
-        assertNotNull(createdRequest.getCreated());
+        assertNotNull(result);
+        assertNotNull(result.getCreated());
+        assertEquals(itemRequestDto.getDescription(), result.getDescription());
+
     }
 
     @Test
     void createItemRequest_invalidUser_userNotFoundExceptionThrown() {
         Long userId = 1L;
         ItemRequestDto itemRequestDto = new ItemRequestDto();
-        itemRequestDto.setDescription("Test item request");
+        itemRequestDto.setDescription("Test description");
 
-        when(userRepository.findById(userId)).thenReturn(Optional.empty());
+        when(userRepository.findById(userId)).thenReturn(java.util.Optional.empty());
 
-        assertThrows(UserNotFoundException.class, () -> itemRequestService.createItemRequest(userId, itemRequestDto));
+        assertThrows(UserNotFoundException.class, () -> {
+            itemRequestService.createItemRequest(userId, itemRequestDto);
+        });
 
         verify(itemRequestRepository, never()).save(any(ItemRequest.class));
     }
@@ -78,24 +104,27 @@ public class ItemRequestServiceImplTest {
     @Test
     void getOwnItemRequests_validUser_itemRequestsRetrieved() {
         Long userId = 1L;
-        User user = new User();
-        user.setId(userId);
+
+        User user = new User(userId);
 
         ItemRequest itemRequest1 = new ItemRequest();
         itemRequest1.setId(1L);
         itemRequest1.setDescription("Item Request 1");
+        itemRequest1.setRequester(user);
 
         ItemRequest itemRequest2 = new ItemRequest();
         itemRequest2.setId(2L);
         itemRequest2.setDescription("Item Request 2");
+        itemRequest2.setRequester(user);
 
         List<ItemRequest> itemRequestList = new ArrayList<>();
         itemRequestList.add(itemRequest1);
         itemRequestList.add(itemRequest2);
 
-        when(userRepository.existsById(userId)).thenReturn(true);
+        when(userRepository.findById(userId)).thenReturn(java.util.Optional.of(user));
         when(itemRequestRepository.findAllByRequesterId(userId)).thenReturn(itemRequestList);
         when(itemRepository.getAllByRequestId(anyLong())).thenReturn(new ArrayList<>());
+        when(userRepository.existsById(userId)).thenReturn(true);
 
         List<ItemRequestDto> result = itemRequestService.getOwnItemRequests(userId);
 
@@ -106,16 +135,56 @@ public class ItemRequestServiceImplTest {
     }
 
     @Test
-    void getOwnItemRequests_invalidUser_userNotFoundExceptionThrown() {
+    void getOwnItemRequestsInvalidUser() {
         Long userId = 1L;
 
-        when(userRepository.existsById(userId)).thenReturn(false);
+        when(userRepository.findById(userId)).thenReturn(java.util.Optional.empty());
 
         assertThrows(UserNotFoundException.class, () -> {
             itemRequestService.getOwnItemRequests(userId);
         });
 
-        verify(itemRequestRepository, never()).findAllByRequesterId(userId);
+        verify(itemRequestRepository, never()).findAllByRequesterId(anyLong());
+    }
+
+    @Test
+    void getAllItemRequests_validPagination_itemRequestsRetrieved() {
+        int from = 0;
+        int size = 1;
+
+        Long userId = 1L;
+        User user = new User(userId);
+
+        ItemRequest itemRequest1 = new ItemRequest();
+        itemRequest1.setId(1L);
+        itemRequest1.setDescription("Item Request 1");
+        itemRequest1.setCreated(LocalDateTime.now());
+        itemRequest1.setRequester(user);
+
+        ItemRequest itemRequest2 = new ItemRequest();
+        itemRequest2.setId(2L);
+        itemRequest2.setDescription("Item Request 2");
+        itemRequest2.setCreated(LocalDateTime.now());
+        itemRequest2.setRequester(user);
+
+        List<ItemRequest> itemRequestList = new ArrayList<>();
+        itemRequestList.add(itemRequest1);
+        itemRequestList.add(itemRequest2);
+
+
+        Pageable pageable = PageRequest.of(from, size);
+        Page<ItemRequest> itemRequestPage = new PageImpl<>(itemRequestList, pageable, 2);
+
+        when(itemRequestRepository.findAllOrderByCreated(pageable)).thenReturn(itemRequestPage);
+        when(itemRepository.getAllByRequestId(anyLong())).thenReturn(new ArrayList<>());
+        when(userRepository.existsById(userId)).thenReturn(true);
+
+        List<ItemRequestDto> result = itemRequestService.getAllItemRequests(userId, from, size);
+
+        assertNotNull(result);
+        assertEquals(2, result.size());
+        assertEquals(itemRequest1.getDescription(), result.get(0).getDescription());
+        assertEquals(itemRequest2.getDescription(), result.get(1).getDescription());
     }
 
     @Test
@@ -144,7 +213,8 @@ public class ItemRequestServiceImplTest {
 
         when(userRepository.findById(userId)).thenReturn(java.util.Optional.of(user));
         when(itemRequestRepository.findById(itemRequestId)).thenReturn(java.util.Optional.of(itemRequest));
-//        when(itemRepository.getAllByRequestId(itemRequestId)).thenReturn(itemList);
+        when(itemRepository.getAllByRequestId(itemRequestId)).thenReturn(itemList);
+        when(userRepository.existsById(userId)).thenReturn(true);
 
         ItemRequestDto result = itemRequestService.getItemRequest(userId, itemRequestId);
 
@@ -155,41 +225,16 @@ public class ItemRequestServiceImplTest {
         assertEquals(item2.getName(), result.getItems().get(1).getName());
     }
 
-
     @Test
-    void getItemRequest_validData_itemRequestRetrieved() {
-        long userId = 1L;
-        long itemRequestId = 1L;
-
-        User user = new User();
-        user.setId(userId);
-
-        ItemRequest itemRequest = new ItemRequest();
-        itemRequest.setId(itemRequestId);
-        itemRequest.setDescription("Item Request");
-
-        when(userRepository.existsById(userId)).thenReturn(true);
-        when(itemRequestRepository.findById(itemRequestId)).thenReturn(Optional.of(itemRequest));
-        when(itemRepository.getAllByRequestId(itemRequestId)).thenReturn(new ArrayList<>());
-
-        ItemRequestDto result = itemRequestService.getItemRequest(userId, itemRequestId);
-
-        assertNotNull(result);
-        assertEquals(itemRequest.getDescription(), result.getDescription());
-        assertEquals(itemRequest.getId(), result.getId());
-    }
-
-    @Test
-    void getItemRequest_invalidUser_userNotFoundExceptionThrown() {
+    void getItemRequestInvalidUser() {
         Long userId = 1L;
-        Long itemRequestId = 1L;
 
-        when(userRepository.existsById(userId)).thenReturn(false);
+        when(userRepository.findById(userId)).thenReturn(java.util.Optional.empty());
 
         assertThrows(UserNotFoundException.class, () -> {
-            itemRequestService.getItemRequest(userId, itemRequestId);
+            itemRequestService.getItemRequest(userId, 1L);
         });
 
-        verify(itemRequestRepository, never()).findById(itemRequestId);
+        verify(itemRequestRepository, never()).findById(anyLong());
     }
 }
