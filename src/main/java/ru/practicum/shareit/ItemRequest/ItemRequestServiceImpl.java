@@ -38,7 +38,7 @@ public class ItemRequestServiceImpl implements ItemRequestService {
     }
 
     @Override
-    public List<ItemRequestDto>getAllItemRequests(Long userId, int from, int size) {
+    public List<ItemRequestDto> getAllItemRequests(Long userId, int from, int size) {
         if (from < 0 || size < 1) {
             throw new IllegalArgumentException("Wrong page number");
         }
