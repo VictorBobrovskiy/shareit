@@ -1,5 +1,4 @@
 package ru.practicum.shareit.ItemRequest;
-import org.springframework.stereotype.Component;
 
 public class ItemRequestMapper {
 

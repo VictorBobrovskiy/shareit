@@ -2,9 +2,14 @@ package ru.practicum.shareit;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.springframework.context.annotation.Bean;
+import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import ru.practicum.shareit.ItemRequest.*;
 import ru.practicum.shareit.item.Item;
 import ru.practicum.shareit.item.ItemRepository;
@@ -17,29 +22,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
-import org.modelmapper.ModelMapper;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import ru.practicum.shareit.item.Item;
-import ru.practicum.shareit.item.ItemRepository;
-import ru.practicum.shareit.user.User;
-import ru.practicum.shareit.user.UserNotFoundException;
-import ru.practicum.shareit.user.UserRepository;
-
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 public class ItemRequestServiceImplTest {
@@ -73,9 +55,10 @@ public class ItemRequestServiceImplTest {
 
         ItemRequestDto itemRequestDto = new ItemRequestDto();
         itemRequestDto.setDescription("Item Request");
+        itemRequestDto.setCreated(LocalDateTime.now());
 
         when(userRepository.findById(userId)).thenReturn(java.util.Optional.of(user));
-        when(itemRequestRepository.save(any(ItemRequest.class))).thenReturn(new ItemRequest());
+        when(itemRequestRepository.save(any(ItemRequest.class))).thenReturn(ItemRequestMapper.toEntity(itemRequestDto));
         when(userRepository.existsById(userId)).thenReturn(true);
 
         ItemRequestDto result = itemRequestService.createItemRequest(userId, itemRequestDto);
@@ -154,6 +137,7 @@ public class ItemRequestServiceImplTest {
 
         Long userId = 1L;
         User user = new User(userId);
+        Long testUserId = 2L;
 
         ItemRequest itemRequest1 = new ItemRequest();
         itemRequest1.setId(1L);
@@ -177,9 +161,9 @@ public class ItemRequestServiceImplTest {
 
         when(itemRequestRepository.findAllOrderByCreated(pageable)).thenReturn(itemRequestPage);
         when(itemRepository.getAllByRequestId(anyLong())).thenReturn(new ArrayList<>());
-        when(userRepository.existsById(userId)).thenReturn(true);
+        when(userRepository.existsById(testUserId)).thenReturn(true);
 
-        List<ItemRequestDto> result = itemRequestService.getAllItemRequests(userId, from, size);
+        List<ItemRequestDto> result = itemRequestService.getAllItemRequests(testUserId, from, size);
 
         assertNotNull(result);
         assertEquals(2, result.size());

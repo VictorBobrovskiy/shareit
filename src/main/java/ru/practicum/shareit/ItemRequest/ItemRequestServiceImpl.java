@@ -1,7 +1,6 @@
 package ru.practicum.shareit.ItemRequest;
 
 import lombok.RequiredArgsConstructor;
-import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.item.ItemDto;
