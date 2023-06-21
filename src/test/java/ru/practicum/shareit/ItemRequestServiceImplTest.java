@@ -5,7 +5,6 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -34,10 +33,6 @@ public class ItemRequestServiceImplTest {
 
     @Mock
     private ItemRepository itemRepository;
-
-    @Mock
-    public ModelMapper modelMapper;
-
     @InjectMocks
     private ItemRequestServiceImpl itemRequestService;
 
@@ -48,7 +43,7 @@ public class ItemRequestServiceImplTest {
     }
 
     @Test
-    void createItemRequest_validData_itemRequestCreated() {
+    void createItemRequestValidData() {
         Long userId = 1L;
 
         User user = new User(userId);
@@ -70,7 +65,7 @@ public class ItemRequestServiceImplTest {
     }
 
     @Test
-    void createItemRequest_invalidUser_userNotFoundExceptionThrown() {
+    void createItemRequestInvalidUser() {
         Long userId = 1L;
         ItemRequestDto itemRequestDto = new ItemRequestDto();
         itemRequestDto.setDescription("Test description");
@@ -85,7 +80,7 @@ public class ItemRequestServiceImplTest {
     }
 
     @Test
-    void getOwnItemRequests_validUser_itemRequestsRetrieved() {
+    void getOwnItemRequestsValidUser() {
         Long userId = 1L;
 
         User user = new User(userId);
@@ -131,7 +126,7 @@ public class ItemRequestServiceImplTest {
     }
 
     @Test
-    void getAllItemRequests_validPagination_itemRequestsRetrieved() {
+    void getAllItemRequestsValidPagination() {
         int from = 0;
         int size = 1;
 
@@ -172,7 +167,7 @@ public class ItemRequestServiceImplTest {
     }
 
     @Test
-    void getItemRequest_validUserAndItemRequest_itemRequestRetrieved() {
+    void getItemRequestValidUserAndItemRequest() {
         Long userId = 1L;
         Long itemRequestId = 1L;
 

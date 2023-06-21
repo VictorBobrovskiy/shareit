@@ -20,4 +20,7 @@ public class UserDto {
     @Email
     @NotBlank(message = "Email should not be empty")
     private String email;
+
+    public UserDto(long l, String john) {
+    }
 }
