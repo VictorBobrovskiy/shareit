@@ -1,11 +1,10 @@
-package ru.practicum.shareit;
+package ru.practicum.shareit.user;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import ru.practicum.shareit.user.*;
 
 import java.util.ArrayList;
 import java.util.List;

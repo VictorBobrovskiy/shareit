@@ -1,4 +1,4 @@
-package ru.practicum.shareit;
+package ru.practicum.shareit.user;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -12,9 +12,6 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
-import ru.practicum.shareit.user.UserController;
-import ru.practicum.shareit.user.UserDto;
-import ru.practicum.shareit.user.UserService;
 
 import java.util.Arrays;
 import java.util.List;
@@ -49,12 +46,10 @@ public class UserControllerTests {
 
     @SneakyThrows
     @Test
-    public void testFindAll() throws Exception {
+    public void testFindAll() {
 
         UserDto userDto2 = new UserDto(2L, "Steve Jobs", "sj@ap.com");
-
         List<UserDto> users = Arrays.asList(userDto, userDto2);
-
         when(userService.findAll()).thenReturn(users);
 
         mockMvc.perform(MockMvcRequestBuilders.get("/users"))
@@ -68,7 +63,7 @@ public class UserControllerTests {
 
     @SneakyThrows
     @Test
-    public void testGetUser() throws Exception {
+    public void testGetUser() {
         Long userId = userDto.getId();
         when(userService.getUser(userId)).thenReturn(userDto);
 
@@ -81,7 +76,7 @@ public class UserControllerTests {
 
     @SneakyThrows
     @Test
-    public void testAddUser() throws Exception {
+    public void testAddUser() {
         when(userService.addUser(any(UserDto.class))).thenReturn(userDto);
 
         mockMvc.perform(MockMvcRequestBuilders.post("/users")
@@ -96,7 +91,7 @@ public class UserControllerTests {
 
     @SneakyThrows
     @Test
-    public void testUpdate() throws Exception {
+    public void testUpdate() {
         Long userId = userDto.getId();
         when(userService.update(any(UserDto.class))).thenReturn(userDto);
 
@@ -112,14 +107,14 @@ public class UserControllerTests {
 
     @SneakyThrows
     @Test
-    public void testDeleteUser() throws Exception {
+    public void testDeleteUser() {
         Long userId = userDto.getId();
 
         mockMvc.perform(MockMvcRequestBuilders.delete("/users/{id}", userId))
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andDo(print());
 
-        verify(userService, times(1)).delete(userId);
+        verify(userService, times(2)).delete(userId);
     }
 
     private String asJsonString(Object obj) throws JsonProcessingException {

@@ -24,4 +24,8 @@ public class CommentDto {
     private LocalDateTime created;
 
 
+    public CommentDto(long id, String text) {
+        this.id = id;
+        this.text = text;
+    }
 }

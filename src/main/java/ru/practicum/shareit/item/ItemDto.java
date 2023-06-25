@@ -1,5 +1,6 @@
 package ru.practicum.shareit.item;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import ru.practicum.shareit.booking.BookingDto;
 import ru.practicum.shareit.comment.CommentDto;
@@ -10,6 +11,7 @@ import java.util.List;
 
 
 @Data
+@AllArgsConstructor
 public class ItemDto implements Comparable<ItemDto> {
 
     private Long id;
@@ -41,6 +43,24 @@ public class ItemDto implements Comparable<ItemDto> {
     }
 
     public ItemDto() {
+    }
+
+    public ItemDto(Long id, String name) {
+        this.id = id;
+        this.name = name;
+    }
+
+    public ItemDto(Long id, String newItem, String description, boolean available) {
+        this.id = id;
+        this.name = name;
+        this.description = description;
+        this.available = available;
+    }
+
+    public ItemDto(String newItem, String description, boolean available) {
+        this.name = name;
+        this.description = description;
+        this.available = available;
     }
 
     @Override

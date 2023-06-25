@@ -1,4 +1,4 @@
-package ru.practicum.shareit;
+package ru.practicum.shareit.item;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -8,11 +8,11 @@ import org.mockito.MockitoAnnotations;
 import ru.practicum.shareit.ItemRequest.ItemRequest;
 import ru.practicum.shareit.booking.Booking;
 import ru.practicum.shareit.booking.BookingRepository;
+import ru.practicum.shareit.booking.Status;
 import ru.practicum.shareit.comment.Comment;
 import ru.practicum.shareit.comment.CommentDto;
 import ru.practicum.shareit.comment.CommentRepository;
 import ru.practicum.shareit.exception.ValidationException;
-import ru.practicum.shareit.item.*;
 import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.user.UserNotFoundException;
 import ru.practicum.shareit.user.UserRepository;
@@ -192,6 +192,7 @@ class ItemServiceImplTest {
         LocalDateTime now = LocalDateTime.now();
         Booking nextBooking = new Booking();
         nextBooking.setItem(item);
+        nextBooking.setStatus(Status.APPROVED);
 
         when(bookingRepository.findFirstByItemAndStartAfterAndStatusOrderByStartAsc(item.getId(), now, "APPROVED"))
                 .thenReturn(Optional.of(nextBooking));
