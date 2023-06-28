@@ -114,7 +114,7 @@ public class UserControllerTests {
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andDo(print());
 
-        verify(userService, times(2)).delete(userId);
+        verify(userService, times(1)).delete(userId);
     }
 
     private String asJsonString(Object obj) throws JsonProcessingException {
