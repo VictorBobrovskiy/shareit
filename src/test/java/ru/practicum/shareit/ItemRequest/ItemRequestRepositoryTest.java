@@ -7,7 +7,9 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import ru.practicum.shareit.item.ItemRepository;
 import ru.practicum.shareit.user.User;
+import ru.practicum.shareit.user.UserRepository;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -17,12 +19,16 @@ public class ItemRequestRepositoryTest {
 
     @Autowired
     private ItemRequestRepository itemRequestRepository;
+    @Autowired
+    private UserRepository userRepository;
+    @Autowired
+    private ItemRepository itemRepository;
 
     @Test
     public void testFindAllByRequesterId() {
         // Create a test user
-        User user = new User();
-        user.setId(10L);
+        User user = new User(5L, "Mike", "mike@go.com");
+        userRepository.save(user);
 
         // Create test item requests
         ItemRequest itemRequest1 = new ItemRequest();
@@ -47,15 +53,20 @@ public class ItemRequestRepositoryTest {
 
     @Test
     public void testFindAllOrderByCreated() {
+
+        User user = new User(6L, "Nike", "nike@go.com");
+        userRepository.save(user);
         // Create test item requests
         ItemRequest itemRequest1 = new ItemRequest();
         itemRequest1.setDescription("Item request 1");
         itemRequest1.setCreated(LocalDateTime.now().minusDays(2));
+        itemRequest1.setRequester(user);
         itemRequestRepository.save(itemRequest1);
 
         ItemRequest itemRequest2 = new ItemRequest();
         itemRequest2.setDescription("Item request 2");
         itemRequest2.setCreated(LocalDateTime.now().minusDays(1));
+        itemRequest2.setRequester(user);
         itemRequestRepository.save(itemRequest2);
 
         // Set up pagination

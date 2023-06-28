@@ -50,6 +50,24 @@ class ItemServiceImplTest {
         MockitoAnnotations.openMocks(this);
     }
 
+    @Test
+    public void getNextBookingValidData() {
+        Item item = new Item();
+        item.setId(1L);
+
+        LocalDateTime now = LocalDateTime.now();
+        Booking nextBooking = new Booking();
+        nextBooking.setId(1L);
+        nextBooking.setItem(item);
+        nextBooking.setStatus(Status.APPROVED);
+
+        when(bookingRepository.findFirstByItemAndStartAfterAndStatusOrderByStartAsc(item.getId(), now, "APPROVED"))
+                .thenReturn(Optional.of(nextBooking));
+
+        Booking result = itemService.getNextBooking(item);
+
+        assertEquals(nextBooking, result);
+    }
 
     @Test
     void getItemValidUserIdAndItemId() {
@@ -184,23 +202,6 @@ class ItemServiceImplTest {
         verify(itemRepository).findAllItemsByDescriptionContainingIgnoreCaseAndAvailableTrue(searchText);
     }
 
-    @Test
-    public void getNextBookingValidData() {
-        Item item = new Item();
-        item.setId(1L);
-
-        LocalDateTime now = LocalDateTime.now();
-        Booking nextBooking = new Booking();
-        nextBooking.setItem(item);
-        nextBooking.setStatus(Status.APPROVED);
-
-        when(bookingRepository.findFirstByItemAndStartAfterAndStatusOrderByStartAsc(item.getId(), now, "APPROVED"))
-                .thenReturn(Optional.of(nextBooking));
-
-        Booking result = itemService.getNextBooking(item);
-
-        assertEquals(null, result);
-    }
 
     @Test
     public void getNextBookingNoBookingFound() {
