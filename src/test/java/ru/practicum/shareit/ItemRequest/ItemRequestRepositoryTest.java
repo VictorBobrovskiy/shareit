@@ -27,7 +27,7 @@ public class ItemRequestRepositoryTest {
     @Test
     public void testFindAllByRequesterId() {
         // Create a test user
-        User user = new User(5L, "Mike", "mike@go.com");
+        User user = new User(3L, "Mike", "mike@go.com");
         userRepository.save(user);
 
         // Create test item requests
@@ -54,7 +54,7 @@ public class ItemRequestRepositoryTest {
     @Test
     public void testFindAllOrderByCreated() {
 
-        User user = new User(6L, "Nike", "nike@go.com");
+        User user = new User(4L, "Nike", "nike@go.com");
         userRepository.save(user);
         // Create test item requests
         ItemRequest itemRequest1 = new ItemRequest();
