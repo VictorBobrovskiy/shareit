@@ -7,8 +7,6 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import ru.practicum.shareit.item.ItemRepository;
-import ru.practicum.shareit.user.UserRepository;
 
 @DataJpaTest
 public class BookingRepositoryTest {
@@ -16,11 +14,6 @@ public class BookingRepositoryTest {
     @Autowired
     private BookingRepository bookingRepository;
 
-    @Autowired
-    private ItemRepository itemRepository;
-
-    @Autowired
-    private UserRepository userRepository;
 
     @Test
     public void testFindAllBookingsByBookerIdOrderByStartDesc() {
