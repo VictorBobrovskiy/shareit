@@ -50,14 +50,14 @@ public class ItemDto implements Comparable<ItemDto> {
         this.name = name;
     }
 
-    public ItemDto(Long id, String newItem, String description, boolean available) {
+    public ItemDto(Long id, String name, String description, boolean available) {
         this.id = id;
         this.name = name;
         this.description = description;
         this.available = available;
     }
 
-    public ItemDto(String newItem, String description, boolean available) {
+    public ItemDto(String name, String description, boolean available) {
         this.name = name;
         this.description = description;
         this.available = available;
