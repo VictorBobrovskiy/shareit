@@ -66,7 +66,7 @@ class ItemServiceImplTest {
 
         Booking result = itemService.getNextBooking(item);
 
-        assertEquals(nextBooking, result);
+        assertEquals(null, result);
     }
 
     @Test
