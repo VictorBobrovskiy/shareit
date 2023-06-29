@@ -1,7 +1,6 @@
 package ru.practicum.shareit.ItemRequest;
 
 import org.junit.jupiter.api.Test;
-import ru.practicum.shareit.item.ItemNotFoundException;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
