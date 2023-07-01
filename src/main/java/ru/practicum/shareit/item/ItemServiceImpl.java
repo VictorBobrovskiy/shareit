@@ -1,6 +1,7 @@
 package ru.practicum.shareit.item;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.ItemRequest.ItemRequestRepository;
 import ru.practicum.shareit.booking.Booking;
@@ -26,6 +27,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 @Transactional
 public class ItemServiceImpl implements ItemService {
 
@@ -43,6 +45,7 @@ public class ItemServiceImpl implements ItemService {
         if (size < 1 || from < 0) {
             throw new IllegalArgumentException("Wrong page number");
         }
+        log.debug("Item list for user " + userId + " delivered");
         return itemRepository.findAllItemsByOwnerIdOrderById(userId).stream()
                 .map(item -> {
                     ItemDto itemDto = ItemMapper.mapItemToDto(item);
@@ -83,6 +86,7 @@ public class ItemServiceImpl implements ItemService {
                 .map(CommentMapper::toDto)
                 .collect(Collectors.toList());
         itemDto.setComments(itemComments);
+        log.debug("Item with id " + itemId + " delivered");
         return itemDto;
     }
 
@@ -92,6 +96,7 @@ public class ItemServiceImpl implements ItemService {
         Item item = ItemMapper.mapDtoToItem(itemDto);
         item.setOwner(userRepository.findById(userId).orElseThrow(
                 () -> new UserNotFoundException("User not found")));
+        log.debug("New item added by user " + userId);
         return ItemMapper.mapItemToDto(itemRepository.save(item));
     }
 
@@ -102,6 +107,7 @@ public class ItemServiceImpl implements ItemService {
         if (!Objects.equals(owner.getId(), userId)) {
             throw new UserAccessException("Wrong user");
         } else {
+            log.debug("Item with id " + itemId + " deleted");
             itemRepository.deleteById(itemId);
         }
     }
@@ -122,6 +128,7 @@ public class ItemServiceImpl implements ItemService {
         if (itemDto.getAvailable() != null) {
             item.setAvailable(itemDto.getAvailable());
         }
+        log.debug("Item with id " + itemId + " updated");
         return ItemMapper.mapItemToDto(itemRepository.save(item));
     }
 
@@ -135,6 +142,7 @@ public class ItemServiceImpl implements ItemService {
             throw new IllegalArgumentException("Wrong page number");
         }
         String query = text.toLowerCase();
+        log.debug("Items for query " + text + " found");
         return itemRepository.findAllItemsByDescriptionContainingIgnoreCaseAndAvailableTrue(query)
                 .stream()
                 .map(ItemMapper::mapItemToDto)
@@ -176,7 +184,7 @@ public class ItemServiceImpl implements ItemService {
             comment.setAuthor(author);
             comment.setItem(item);
             comment.setCreated(LocalDateTime.now());
-
+            log.debug("New comment added by user " + userId);
             return CommentMapper.toDto(commentRepository.save(comment));
         } else {
             throw new ValidationException("No past bookings found for the user");

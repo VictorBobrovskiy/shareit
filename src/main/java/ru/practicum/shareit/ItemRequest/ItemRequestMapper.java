@@ -1,5 +1,6 @@
 package ru.practicum.shareit.ItemRequest;
 
+
 public class ItemRequestMapper {
 
     public static ItemRequest toEntity(ItemRequestDto dto) {
@@ -16,5 +17,8 @@ public class ItemRequestMapper {
         dto.setDescription(entity.getDescription());
         dto.setCreated(entity.getCreated());
         return dto;
+    }
+
+    private ItemRequestMapper() {
     }
 }

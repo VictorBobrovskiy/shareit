@@ -1,6 +1,7 @@
 package ru.practicum.shareit.booking;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -21,6 +22,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 @Transactional
 public class BookingServiceImpl implements BookingService {
 
@@ -49,6 +51,7 @@ public class BookingServiceImpl implements BookingService {
         booking.setBooker(booker);
         booking.setItem(item);
         booking.setStatus(Status.WAITING);
+        log.debug("New booking by user " + userId + " created");
         return bookingRepository.save(booking);
     }
 
@@ -63,6 +66,7 @@ public class BookingServiceImpl implements BookingService {
             throw new UserNotFoundException("Only owners can change status");
         }
         booking.setStatus(approved ? Status.APPROVED : Status.REJECTED);
+        log.debug("Booking by user " + userId + " approved");
         return booking;
     }
 
@@ -75,6 +79,7 @@ public class BookingServiceImpl implements BookingService {
                 && !Objects.equals(userId, booking.getBooker().getId())) {
             throw new UserAccessException("You are neither the booker nor the owner of the item to be booked");
         } else {
+            log.debug("Booking with id " + id + " found");
             return booking;
         }
     }
@@ -88,6 +93,7 @@ public class BookingServiceImpl implements BookingService {
         int pageNum = from / size;
         Page<Booking> bookingPage = bookingRepository
                 .findAllBookingsByBookerIdOrderByStartDesc(bookerId, PageRequest.of(pageNum, size));
+        log.debug("Bookings by booker " + bookerId + " found");
         return filterBookingsByState(bookingPage.toList(), state);
     }
 
@@ -100,6 +106,7 @@ public class BookingServiceImpl implements BookingService {
         int pageNum = from / size;
         Page<Booking> bookingList = bookingRepository
                 .findAllBookingsByItemOwnerIdOrderByStartDesc(ownerId, PageRequest.of(pageNum, size));
+        log.debug("Bookings for item owner " + ownerId + " found");
         return filterBookingsByState(bookingList.toList(), state);
     }
 

@@ -1,9 +1,10 @@
 package ru.practicum.shareit.item;
 
 
+import lombok.experimental.UtilityClass;
 import ru.practicum.shareit.ItemRequest.ItemRequest;
 
-
+@UtilityClass
 public class ItemMapper {
 
 

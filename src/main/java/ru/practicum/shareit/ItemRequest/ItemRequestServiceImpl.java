@@ -1,6 +1,7 @@
 package ru.practicum.shareit.ItemRequest;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.item.ItemDto;
@@ -14,6 +15,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
+@Slf4j
 @RequiredArgsConstructor
 public class ItemRequestServiceImpl implements ItemRequestService {
 
@@ -26,12 +28,14 @@ public class ItemRequestServiceImpl implements ItemRequestService {
         ItemRequest request = ItemRequestMapper.toEntity(itemRequestDto);
         request.setRequester(userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException("User not found")));
         request.setCreated(LocalDateTime.now());
+        log.debug("New ItemRequest created");
         return ItemRequestMapper.toDto(itemRequestRepository.save(request));
     }
 
     @Override
     public List<ItemRequestDto> getOwnItemRequests(Long userId) {
         checkUserExists(userId);
+        log.debug("ItemRequest list for user " + userId + " delivered");
         return itemRequestRepository.findAllByRequesterId(userId).stream()
                 .map(this::mapItemRequestDtoWithItems)
                 .collect(Collectors.toList());
@@ -43,6 +47,7 @@ public class ItemRequestServiceImpl implements ItemRequestService {
             throw new IllegalArgumentException("Wrong page number");
         }
         int pageNum = from / size;
+        log.debug("All ItemRequests delivered");
         return itemRequestRepository.findAllOrderByCreated(PageRequest.of(pageNum, size))
                 .stream()
                 .filter(itemRequest -> !itemRequest.getRequester().getId().equals(userId))
@@ -55,6 +60,7 @@ public class ItemRequestServiceImpl implements ItemRequestService {
         checkUserExists(userId);
         ItemRequest itemRequest = itemRequestRepository.findById(itemRequestId)
                 .orElseThrow(() -> new ItemRequestNotFoundException("ItemRequest not found"));
+        log.debug("ItemRequest with id " + itemRequestId + " delivered");
         return mapItemRequestDtoWithItems(itemRequest);
     }
 

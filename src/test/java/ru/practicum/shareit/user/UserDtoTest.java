@@ -43,12 +43,12 @@ public class UserDtoTest {
     @Test
     public void testUserDtoWithInvalidConstructor() {
         long l = 1L;
-        String john = "John";
+        String name = "John";
 
-        UserDto userDto = new UserDto(l, john);
+        UserDto userDto = new UserDto(l, name);
 
         assertEquals(l, userDto.getId());
-        assertEquals(john, userDto.getName());
+        assertEquals(name, userDto.getName());
         assertEquals(null, userDto.getEmail());
     }
 }
