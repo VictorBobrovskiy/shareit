@@ -1,6 +1,9 @@
 package ru.practicum.shareit.item;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import ru.practicum.shareit.ItemRequest.ItemRequest;
 import ru.practicum.shareit.user.User;
 
@@ -63,7 +66,6 @@ public class Item {
     public Item(Long id) {
         this.id = id;
     }
-
 
 
     @Override
