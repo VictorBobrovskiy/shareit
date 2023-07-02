@@ -55,6 +55,13 @@ public class Item {
         this.request = request;
     }
 
+    public Item(String name, String description, Boolean available, ItemRequest request) {
+        this.name = name;
+        this.description = description;
+        this.available = available;
+        this.request = request;
+    }
+
     public Item(Long id, User owner, String name, String description, Boolean available) {
         this.id = id;
         this.owner = owner;
