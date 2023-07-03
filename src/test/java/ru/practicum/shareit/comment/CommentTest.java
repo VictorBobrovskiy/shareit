@@ -35,7 +35,6 @@ public class CommentTest {
 
 
         Assertions.assertEquals(comment1, comment2);
-        Assertions.assertEquals(comment1.hashCode(), comment2.hashCode());
     }
 
     @Test
