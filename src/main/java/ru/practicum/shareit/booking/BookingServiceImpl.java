@@ -110,7 +110,7 @@ public class BookingServiceImpl implements BookingService {
         return filterBookingsByState(bookingList.toList(), state);
     }
 
-    private List<Booking> filterBookingsByState(List<Booking> bookingList, String state) {
+    public List<Booking> filterBookingsByState(List<Booking> bookingList, String state) {
         Status status;
         LocalDateTime now = LocalDateTime.now();
         switch (state.toUpperCase()) {

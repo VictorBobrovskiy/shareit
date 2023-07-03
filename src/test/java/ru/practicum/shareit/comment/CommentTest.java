@@ -31,7 +31,7 @@ public class CommentTest {
         Comment comment1 = new Comment("Test Comment", item, user);
         comment1.setId(1L);
 
-        Comment comment2 = new Comment(1l, "Test Comment", item, user);
+        Comment comment2 = new Comment(1L, "Test Comment", item, user);
 
 
         Assertions.assertEquals(comment1, comment2);

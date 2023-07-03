@@ -21,7 +21,6 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -312,7 +311,7 @@ public class BookingServiceImplTest {
         List<Booking> bookingList = createBookingList();
         String state = "ALL";
 
-        List<Booking> filteredList = filterBookingsByState(bookingList, state);
+        List<Booking> filteredList = bookingService.filterBookingsByState(bookingList, state);
 
         Assertions.assertEquals(bookingList, filteredList);
     }
@@ -322,7 +321,7 @@ public class BookingServiceImplTest {
         List<Booking> bookingList = createBookingList();
         String state = "PAST";
 
-        List<Booking> filteredList = filterBookingsByState(bookingList, state);
+        List<Booking> filteredList = bookingService.filterBookingsByState(bookingList, state);
 
         // Only bookings with end dates before current date/time should be returned
         List<Booking> expectedList = new ArrayList<>();
@@ -338,7 +337,7 @@ public class BookingServiceImplTest {
         List<Booking> bookingList = createBookingList();
         String state = "CURRENT";
 
-        List<Booking> filteredList = filterBookingsByState(bookingList, state);
+        List<Booking> filteredList = bookingService.filterBookingsByState(bookingList, state);
 
         // Only bookings with start dates before current date/time and end dates after current date/time should be returned
         List<Booking> expectedList = new ArrayList<>();
@@ -354,7 +353,7 @@ public class BookingServiceImplTest {
         List<Booking> bookingList = createBookingList();
         String state = "FUTURE";
 
-        List<Booking> filteredList = filterBookingsByState(bookingList, state);
+        List<Booking> filteredList = bookingService.filterBookingsByState(bookingList, state);
 
         // Only bookings with start dates after current date/time should be returned
         List<Booking> expectedList = new ArrayList<>();
@@ -369,7 +368,7 @@ public class BookingServiceImplTest {
         List<Booking> bookingList = createBookingList();
         String state = "WAITING";
 
-        List<Booking> filteredList = filterBookingsByState(bookingList, state);
+        List<Booking> filteredList = bookingService.filterBookingsByState(bookingList, state);
 
         // Only bookings with status = WAITING should be returned
         List<Booking> expectedList = new ArrayList<>();
@@ -384,7 +383,7 @@ public class BookingServiceImplTest {
         List<Booking> bookingList = createBookingList();
         String state = "APPROVED";
 
-        List<Booking> filteredList = filterBookingsByState(bookingList, state);
+        List<Booking> filteredList = bookingService.filterBookingsByState(bookingList, state);
 
         // Only bookings with status = APPROVED should be returned
         List<Booking> expectedList = new ArrayList<>();
@@ -398,7 +397,7 @@ public class BookingServiceImplTest {
         List<Booking> bookingList = createBookingList();
         String state = "REJECTED";
 
-        List<Booking> filteredList = filterBookingsByState(bookingList, state);
+        List<Booking> filteredList = bookingService.filterBookingsByState(bookingList, state);
 
         // Only bookings with status = REJECTED should be returned
         List<Booking> expectedList = new ArrayList<>();
@@ -412,7 +411,7 @@ public class BookingServiceImplTest {
         List<Booking> bookingList = createBookingList();
         String state = "CANCELLED";
 
-        List<Booking> filteredList = filterBookingsByState(bookingList, state);
+        List<Booking> filteredList = bookingService.filterBookingsByState(bookingList, state);
 
         // Only bookings with status = CANCELLED should be returned
         List<Booking> expectedList = new ArrayList<>();
@@ -427,7 +426,7 @@ public class BookingServiceImplTest {
         String state = "UNKNOWN";
 
         Assertions.assertThrows(IllegalArgumentException.class, () -> {
-            filterBookingsByState(bookingList, state);
+            bookingService.filterBookingsByState(bookingList, state);
         });
     }
 
@@ -444,42 +443,5 @@ public class BookingServiceImplTest {
         return bookingList;
     }
 
-    private List<Booking> filterBookingsByState(List<Booking> bookingList, String state) {
-        Status status;
-        LocalDateTime now = LocalDateTime.now();
-        switch (state.toUpperCase()) {
-            case "ALL":
-                return bookingList;
-            case "PAST":
-                return bookingList.stream()
-                        .filter(b -> b.getEnd().isBefore(now))
-                        .collect(Collectors.toList());
-            case "CURRENT":
-                return bookingList.stream()
-                        .filter(b -> b.getStart().isBefore(now) && b.getEnd().isAfter(now))
-                        .collect(Collectors.toList());
-            case "FUTURE":
-                return bookingList.stream()
-                        .filter(b -> b.getStart().isAfter(now))
-                        .collect(Collectors.toList());
-            case "WAITING":
-                status = Status.WAITING;
-                break;
-            case "APPROVED":
-                status = Status.APPROVED;
-                break;
-            case "REJECTED":
-                status = Status.REJECTED;
-                break;
-            case "CANCELLED":
-                status = Status.CANCELLED;
-                break;
-            default:
-                throw new IllegalArgumentException("Unknown state: " + state);
-        }
-        return bookingList.stream()
-                .filter(b -> b.getStatus().equals(status))
-                .collect(Collectors.toList());
-    }
 }
 
