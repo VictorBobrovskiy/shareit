@@ -1,5 +1,6 @@
 package ru.practicum.shareit.item;
 
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -49,6 +50,67 @@ class ItemServiceImplTest {
     void setUp() {
         MockitoAnnotations.openMocks(this);
     }
+
+    @Test
+    public void testGetItems() {
+        // Mock data
+        Long userId = 1L;
+        int from = 0;
+        int size = 10;
+        List<Item> itemList = new ArrayList<>();
+        itemList.add(new Item());
+        when(itemRepository.findAllItemsByOwnerIdOrderById(userId)).thenReturn(itemList);
+
+        // Invoke the method
+        List<ItemDto> result = itemService.getItems(userId, from, size);
+
+        // Verify the behavior and assertions
+        verify(itemRepository, times(1)).findAllItemsByOwnerIdOrderById(userId);
+        Assertions.assertEquals(1, result.size());
+        // Add additional assertions as needed
+    }
+
+    @Test
+    public void testDeleteItem() {
+        // Mock data
+        Long userId = 1L;
+        Long itemId = 1L;
+        Item item = new Item();
+        item.setOwner(new User(userId));
+        when(itemRepository.findById(itemId)).thenReturn(Optional.of(item));
+
+        // Invoke the method
+        itemService.deleteItem(userId, itemId);
+
+        // Verify the behavior and assertions
+        verify(itemRepository, times(1)).findById(itemId);
+        verify(itemRepository, times(1)).deleteById(itemId);
+        // Add additional assertions as needed
+    }
+
+    @Test
+    public void testUpdateItem() {
+        // Mock data
+        Long userId = 1L;
+        Long itemId = 1L;
+        Item item = new Item();
+        item.setOwner(new User(userId));
+        when(itemRepository.findById(itemId)).thenReturn(Optional.of(item));
+        when(itemRepository.save(any(Item.class))).thenReturn(item);
+
+        ItemDto itemDto = new ItemDto();
+        itemDto.setName("Updated Name");
+
+        // Invoke the method
+        ItemDto result = itemService.updateItem(userId, itemId, itemDto);
+
+        // Verify the behavior and assertions
+        verify(itemRepository, times(1)).findById(itemId);
+        verify(itemRepository, times(1)).save(item);
+        Assertions.assertEquals(itemDto.getName(), result.getName());
+        // Add additional assertions as needed
+    }
+
 
     @Test
     public void getNextBookingValidData() {

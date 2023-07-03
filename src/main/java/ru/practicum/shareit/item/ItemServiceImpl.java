@@ -3,7 +3,6 @@ package ru.practicum.shareit.item;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import ru.practicum.shareit.ItemRequest.ItemRequestRepository;
 import ru.practicum.shareit.booking.Booking;
 import ru.practicum.shareit.booking.BookingMapper;
 import ru.practicum.shareit.booking.BookingRepository;
@@ -39,7 +38,6 @@ public class ItemServiceImpl implements ItemService {
 
     private final CommentRepository commentRepository;
 
-    private final ItemRequestRepository itemRequestRepository;
 
     public List<ItemDto> getItems(Long userId, int from, int size) {
         if (size < 1 || from < 0) {
