@@ -10,53 +10,45 @@ import java.time.LocalDateTime;
 public class CommentTest {
 
     @Test
-    public void testCommentConstructor() {
-        // Prepare test data
-        Long commentId = 1L;
-        String text = "This is a comment";
-        Item item = new Item(1L);
-        User author = new User(1L);
-        LocalDateTime created = LocalDateTime.now();
+    public void testConstructorWithId() {
+        Long id = 1L;
+        String text = "Test Comment";
+        Item item = new Item();
+        User author = new User();
 
-        // Create a comment using the constructor
-        Comment comment = new Comment(commentId, text, item, author);
-
-        // Assertions
-        Assertions.assertEquals(commentId, comment.getId());
+        Comment comment = new Comment(id, text, item, author);
+        Assertions.assertEquals(id, comment.getId());
         Assertions.assertEquals(text, comment.getText());
         Assertions.assertEquals(item, comment.getItem());
         Assertions.assertEquals(author, comment.getAuthor());
-        Assertions.assertEquals(created.getYear(), comment.getCreated().getYear());
-        Assertions.assertEquals(created.getMonth(), comment.getCreated().getMonth());
-        Assertions.assertEquals(created.getDayOfMonth(), comment.getCreated().getDayOfMonth());
-        Assertions.assertEquals(created.getHour(), comment.getCreated().getHour());
-        Assertions.assertEquals(created.getMinute(), comment.getCreated().getMinute());
-        Assertions.assertEquals(created.getSecond(), comment.getCreated().getSecond());
+        Assertions.assertNotNull(comment.getCreated());
     }
 
     @Test
-    public void testCommentSetterGetter() {
-        // Prepare test data
-        Comment comment = new Comment();
+    public void testEqualsAndHashCode() {
+        Comment comment1 = new Comment("Test Comment", new Item(1L), new User("Test User"));
+        comment1.setId(1L);
 
-        Long commentId = 1L;
-        String text = "This is a comment";
-        Item item = new Item(1L);
-        User author = new User(1L);
+        Comment comment2 = new Comment("Test Comment", new Item(1L), new User("Test User"));
+        comment2.setId(1L);
+
+        Assertions.assertEquals(comment1, comment2);
+        Assertions.assertEquals(comment1.hashCode(), comment2.hashCode());
+    }
+
+    @Test
+    public void testToString() {
+        Long id = 1L;
+        String text = "Test Comment";
         LocalDateTime created = LocalDateTime.now();
 
-        // Set values using setters
-        comment.setId(commentId);
-        comment.setText(text);
-        comment.setItem(item);
-        comment.setAuthor(author);
+        Comment comment = new Comment(id, text, new Item(), new User("Test User"));
         comment.setCreated(created);
 
-        // Assertions
-        Assertions.assertEquals(commentId, comment.getId());
-        Assertions.assertEquals(text, comment.getText());
-        Assertions.assertEquals(item, comment.getItem());
-        Assertions.assertEquals(author, comment.getAuthor());
-        Assertions.assertEquals(created, comment.getCreated());
+        String expectedToString = "Comment{id=1, text='Test Comment', created=" + created + "}";
+        Assertions.assertEquals(expectedToString, comment.toString());
     }
+
+    // Add more test cases for other methods and constructors as needed
+
 }

@@ -1,50 +1,48 @@
 package ru.practicum.shareit.user;
 
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class UserTest {
 
     @Test
-    public void testUser() {
+    public void testConstructorWithId() {
         Long id = 1L;
-        String name = "John Doe";
-        String email = "johndoe@example.com";
-
-        User user = new User(id, name, email);
-
-        assertEquals(id, user.getId());
-        assertEquals(name, user.getName());
-        assertEquals(email, user.getEmail());
-    }
-
-    @Test
-    public void testUserWithIdConstructor() {
-        Long id = 1L;
-
         User user = new User(id);
-
-        assertEquals(id, user.getId());
+        Assertions.assertEquals(id, user.getId());
     }
 
     @Test
-    public void testUserWithNameConstructor() {
-        String name = "John Doe";
-
+    public void testConstructorWithName() {
+        String name = "John";
         User user = new User(name);
-
-        assertEquals(name, user.getName());
+        Assertions.assertEquals(name, user.getName());
     }
 
     @Test
-    public void testUserWithUsernameAndEmailConstructor() {
-        String username = "johndoe";
-        String email = "johndoe@example.com";
+    public void testConstructorWithNameAndEmail() {
+        String name = "John";
+        String email = "john@example.com";
+        User user = new User(name, email);
+        Assertions.assertEquals(name, user.getName());
+        Assertions.assertEquals(email, user.getEmail());
+    }
 
-        User user = new User(username, email);
+    @Test
+    public void testEqualsAndHashCode() {
+        User user1 = new User("John", "john@example.com");
+        User user2 = new User("John", "john@example.com");
+        Assertions.assertEquals(user1, user2);
+        Assertions.assertEquals(user1.hashCode(), user2.hashCode());
+    }
 
-        assertEquals(username, user.getName());
-        assertEquals(email, user.getEmail());
+    @Test
+    public void testToString() {
+        Long id = 1L;
+        String name = "John";
+        String email = "john@example.com";
+        User user = new User(id, name, email);
+        String expectedToString = "User{id=1, name='John', email='john@example.com'}";
+        Assertions.assertEquals(expectedToString, user.toString());
     }
 }

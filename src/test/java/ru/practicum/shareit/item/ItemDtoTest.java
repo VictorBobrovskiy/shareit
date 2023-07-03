@@ -2,79 +2,66 @@ package ru.practicum.shareit.item;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import ru.practicum.shareit.booking.BookingDto;
 import ru.practicum.shareit.comment.CommentDto;
 
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.List;
 
 public class ItemDtoTest {
 
     @Test
-    public void testItemDtoConstructorAndGetters() {
-        // Prepare test data
-        Long itemId = 1L;
-        String name = "Item Name";
-        String description = "Item Description";
-        Boolean available = true;
-        Long requestId = 2L;
-        BookingDto lastBooking = new BookingDto();
-        lastBooking.setId(3L);
-        BookingDto nextBooking = new BookingDto();
-        nextBooking.setId(4L);
-        List<CommentDto> comments = Arrays.asList(new CommentDto(5L, "New comment"), new CommentDto(6L, "Newer comment"));
-
-        // Create an ItemDto using the constructor
-        ItemDto itemDto = new ItemDto(itemId, name, description, available, requestId);
-        itemDto.setLastBooking(lastBooking);
-        itemDto.setNextBooking(nextBooking);
-        itemDto.setComments(comments);
-
-        // Assertions
-        Assertions.assertEquals(itemId, itemDto.getId());
-        Assertions.assertEquals(name, itemDto.getName());
-        Assertions.assertEquals(description, itemDto.getDescription());
-        Assertions.assertEquals(available, itemDto.getAvailable());
-        Assertions.assertEquals(requestId, itemDto.getRequestId());
-        Assertions.assertEquals(lastBooking, itemDto.getLastBooking());
-        Assertions.assertEquals(nextBooking, itemDto.getNextBooking());
-        Assertions.assertEquals(comments, itemDto.getComments());
+    public void testConstructorWithId() {
+        Long id = 1L;
+        ItemDto itemDto = new ItemDto(id, "Test Item");
+        Assertions.assertEquals(id, itemDto.getId());
     }
 
     @Test
-    public void testItemDtoSetterAndGetters() {
-        // Prepare test data
-        ItemDto itemDto = new ItemDto();
+    public void testEqualsAndHashCode() {
+        ItemDto itemDto1 = new ItemDto("Test Item", "Item Description", true);
+        itemDto1.setId(1L);
 
-        Long itemId = 1L;
-        String name = "Item Name";
+        ItemDto itemDto2 = new ItemDto("Test Item", "Item Description", true);
+        itemDto2.setId(1L);
+
+        Assertions.assertEquals(itemDto1, itemDto2);
+        Assertions.assertEquals(itemDto1.hashCode(), itemDto2.hashCode());
+    }
+
+    @Test
+    public void testToString() {
+        Long id = 1L;
+        String name = "Test Item";
         String description = "Item Description";
         Boolean available = true;
-        Long requestId = 2L;
-        BookingDto lastBooking = new BookingDto();
-        lastBooking.setId(3L);
-        BookingDto nextBooking = new BookingDto();
-        nextBooking.setId(4L);
-        List<CommentDto> comments = Arrays.asList(new CommentDto(5L, "New comment"), new CommentDto(6L, "Newer comment"));
 
-        // Set values using setters
-        itemDto.setId(itemId);
-        itemDto.setName(name);
-        itemDto.setDescription(description);
-        itemDto.setAvailable(available);
-        itemDto.setRequestId(requestId);
-        itemDto.setLastBooking(lastBooking);
-        itemDto.setNextBooking(nextBooking);
+        ItemDto itemDto = new ItemDto(id, name, description, available);
+
+        String expectedToString = "ItemDto{id=1, name='Test Item', description='Item Description', available=true}";
+        Assertions.assertEquals(expectedToString, itemDto.toString());
+    }
+
+    @Test
+    public void testCompareTo() {
+        ItemDto itemDto1 = new ItemDto(1L, "Item 1");
+        ItemDto itemDto2 = new ItemDto(2L, "Item 2");
+
+        Assertions.assertTrue(itemDto1.compareTo(itemDto2) < 0);
+        Assertions.assertTrue(itemDto2.compareTo(itemDto1) > 0);
+        Assertions.assertEquals(0, itemDto1.compareTo(itemDto1));
+    }
+
+    @Test
+    public void testSetAndGetComments() {
+        ItemDto itemDto = new ItemDto();
+        List<CommentDto> comments = new ArrayList<>();
+        comments.add(new CommentDto("Comment 1"));
+        comments.add(new CommentDto("Comment 2"));
+
         itemDto.setComments(comments);
-
-        // Assertions
-        Assertions.assertEquals(itemId, itemDto.getId());
-        Assertions.assertEquals(name, itemDto.getName());
-        Assertions.assertEquals(description, itemDto.getDescription());
-        Assertions.assertEquals(available, itemDto.getAvailable());
-        Assertions.assertEquals(requestId, itemDto.getRequestId());
-        Assertions.assertEquals(lastBooking, itemDto.getLastBooking());
-        Assertions.assertEquals(nextBooking, itemDto.getNextBooking());
         Assertions.assertEquals(comments, itemDto.getComments());
     }
+
+    // Add more test cases for other methods and constructors as needed
+
 }

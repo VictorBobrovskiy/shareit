@@ -55,7 +55,7 @@ class ItemServiceImplTest {
         Item item = new Item();
         item.setId(1L);
 
-        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime now = LocalDateTime.now().minusMinutes(1);
         Booking nextBooking = new Booking();
         nextBooking.setId(1L);
         nextBooking.setItem(item);

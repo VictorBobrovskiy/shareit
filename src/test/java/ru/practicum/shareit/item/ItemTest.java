@@ -8,53 +8,42 @@ import ru.practicum.shareit.user.User;
 public class ItemTest {
 
     @Test
-    public void testItemConstructor() {
-        // Prepare test data
-        Long itemId = 1L;
-        User owner = new User(2L);
-        String name = "Item Name";
-        String description = "Item Description";
-        Boolean available = true;
-        ItemRequest request = new ItemRequest(3L);
-
-        // Create an Item using the constructor
-        Item item = new Item(itemId, owner, name, description, available, request);
-
-        // Assertions
-        Assertions.assertEquals(itemId, item.getId());
-        Assertions.assertEquals(owner, item.getOwner());
-        Assertions.assertEquals(name, item.getName());
-        Assertions.assertEquals(description, item.getDescription());
-        Assertions.assertEquals(available, item.getAvailable());
-        Assertions.assertEquals(request, item.getRequest());
+    public void testConstructorWithId() {
+        Long id = 1L;
+        Item item = new Item(id);
+        Assertions.assertEquals(id, item.getId());
     }
 
     @Test
-    public void testItemSetterGetter() {
-        // Prepare test data
-        Item item = new Item();
+    public void testEqualsAndHashCode() {
+        User owner = new User("John", "john@example.com");
+        ItemRequest request = new ItemRequest("Test description");
 
-        Long itemId = 1L;
-        User owner = new User(2L);
-        String name = "Item Name";
+        Item item1 = new Item("Test Item", "Item Description", true, request);
+        item1.setId(1L);
+        item1.setOwner(owner);
+
+        Item item2 = new Item("Test Item", "Item Description", true, request);
+        item2.setId(1L);
+        item2.setOwner(owner);
+
+        Assertions.assertEquals(item1, item2);
+        Assertions.assertEquals(item1.hashCode(), item2.hashCode());
+    }
+
+    @Test
+    public void testToString() {
+        Long id = 1L;
+        String name = "Test Item";
         String description = "Item Description";
         Boolean available = true;
-        ItemRequest request = new ItemRequest(3L);
 
-        // Set values using setters
-        item.setId(itemId);
-        item.setOwner(owner);
+        Item item = new Item(id);
         item.setName(name);
         item.setDescription(description);
         item.setAvailable(available);
-        item.setRequest(request);
 
-        // Assertions
-        Assertions.assertEquals(itemId, item.getId());
-        Assertions.assertEquals(owner, item.getOwner());
-        Assertions.assertEquals(name, item.getName());
-        Assertions.assertEquals(description, item.getDescription());
-        Assertions.assertEquals(available, item.getAvailable());
-        Assertions.assertEquals(request, item.getRequest());
+        String expectedToString = "Item{id=1, name='Test Item', description='Item Description', available=true}";
+        Assertions.assertEquals(expectedToString, item.toString());
     }
 }

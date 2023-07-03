@@ -54,6 +54,13 @@ public class Comment {
         this.created = LocalDateTime.now();
     }
 
+    public Comment(String text, Item item, User author) {
+        this.text = text;
+        this.item = item;
+        this.author = author;
+        this.created = LocalDateTime.now();
+    }
+
     @Override
     public String toString() {
         return "Comment{" +

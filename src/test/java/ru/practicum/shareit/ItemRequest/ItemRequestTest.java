@@ -9,43 +9,49 @@ import java.time.LocalDateTime;
 public class ItemRequestTest {
 
     @Test
-    public void testItemRequestConstructorAndGetters() {
-        // Prepare test data
-        Long requestId = 1L;
-        String description = "Request Description";
-        User requester = new User(2L);
-        LocalDateTime created = LocalDateTime.now();
-
-        // Create an ItemRequest using the constructor
-        ItemRequest itemRequest = new ItemRequest(requestId, description, requester, created);
-
-        // Assertions
-        Assertions.assertEquals(requestId, itemRequest.getId());
-        Assertions.assertEquals(description, itemRequest.getDescription());
-        Assertions.assertEquals(requester, itemRequest.getRequester());
-        Assertions.assertEquals(created, itemRequest.getCreated());
+    public void testConstructorWithId() {
+        Long id = 1L;
+        ItemRequest itemRequest = new ItemRequest(id);
+        Assertions.assertEquals(id, itemRequest.getId());
     }
 
     @Test
-    public void testItemRequestSetterAndGetters() {
-        // Prepare test data
-        ItemRequest itemRequest = new ItemRequest();
+    public void testConstructorWithDescription() {
+        String description = "Test description";
+        ItemRequest itemRequest = new ItemRequest(description);
+        Assertions.assertEquals(description, itemRequest.getDescription());
+    }
 
-        Long requestId = 1L;
-        String description = "Request Description";
-        User requester = new User(2L);
+    @Test
+    public void testEqualsAndHashCode() {
+        User user = new User("John", "john@example.com");
         LocalDateTime created = LocalDateTime.now();
 
-        // Set values using setters
-        itemRequest.setId(requestId);
+        ItemRequest itemRequest1 = new ItemRequest("Test description");
+        itemRequest1.setId(1L);
+        itemRequest1.setRequester(user);
+        itemRequest1.setCreated(created);
+
+        ItemRequest itemRequest2 = new ItemRequest("Test description");
+        itemRequest2.setId(1L);
+        itemRequest2.setRequester(user);
+        itemRequest2.setCreated(created);
+
+        Assertions.assertEquals(itemRequest1, itemRequest2);
+        Assertions.assertEquals(itemRequest1.hashCode(), itemRequest2.hashCode());
+    }
+
+    @Test
+    public void testToString() {
+        Long id = 1L;
+        String description = "Test description";
+        LocalDateTime created = LocalDateTime.now();
+
+        ItemRequest itemRequest = new ItemRequest(id);
         itemRequest.setDescription(description);
-        itemRequest.setRequester(requester);
         itemRequest.setCreated(created);
 
-        // Assertions
-        Assertions.assertEquals(requestId, itemRequest.getId());
-        Assertions.assertEquals(description, itemRequest.getDescription());
-        Assertions.assertEquals(requester, itemRequest.getRequester());
-        Assertions.assertEquals(created, itemRequest.getCreated());
+        String expectedToString = "ItemRequest{id=1, description='Test description', created=" + created.toString() + "}";
+        Assertions.assertEquals(expectedToString, itemRequest.toString());
     }
 }
