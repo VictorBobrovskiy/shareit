@@ -1,6 +1,7 @@
 package ru.practicum.shareit.booking;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -13,13 +14,14 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import ru.practicum.shareit.item.Item;
 import ru.practicum.shareit.user.User;
 
+import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -27,18 +29,19 @@ public class BookingControllerTest {
 
     private final BookingService bookingService = mock(BookingService.class);
 
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    private final ObjectMapper objectMapper = new ObjectMapper().findAndRegisterModules();
     private final BookingController bookingController = new BookingController(bookingService);
     private final MockMvc mockMvc = MockMvcBuilders.standaloneSetup(bookingController).build();
 
     @Test
     public void testAddNewBooking() throws Exception {
-        // Prepare test data
+        ObjectWriter objectWriter = objectMapper.writer().withDefaultPrettyPrinter();
+
         Long userId = 1L;
         BookingDto bookingDto = new BookingDto();
         bookingDto.setItemId(1L);
-//        bookingDto.setStart(LocalDateTime.of(2023, 7, 25, 12, 59));
-//        bookingDto.setEnd(LocalDateTime.of(2023, 7, 27, 0, 0));
+        bookingDto.setStart(LocalDateTime.of(2023, 7, 25, 12, 59));
+        bookingDto.setEnd(LocalDateTime.of(2023, 7, 27, 0, 0));
         Item item = new Item();
         item.setId(1L);
         item.setName("Item 1");
@@ -57,14 +60,18 @@ public class BookingControllerTest {
         booking.setStatus(Status.APPROVED);
         when(bookingService.addNewBooking(userId, bookingDto)).thenReturn(booking);
 
+        String jsonContent = objectWriter.writeValueAsString(bookingDto);
+
+
         // Perform the POST request
         mockMvc.perform(post("/bookings")
                         .header("X-Sharer-User-Id", userId)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(bookingDto)))
-                .andExpect(MockMvcResultMatchers.status().isBadRequest());
-    }
+                        .content(jsonContent))
+                .andExpect(status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.id").value(booking.getId()));
 
+    }
 
     @Test
     public void testApproveBooking() throws Exception {
@@ -84,7 +91,7 @@ public class BookingControllerTest {
 
         // Assert the response
         mockMvc.perform(requestBuilder)
-                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(status().isOk())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.id").value(booking.getId()));
     }
 
@@ -104,7 +111,7 @@ public class BookingControllerTest {
 
         // Assert the response
         mockMvc.perform(requestBuilder)
-                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(status().isOk())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.id").value(booking.getId()));
     }
 
@@ -129,7 +136,7 @@ public class BookingControllerTest {
 
         // Assert the response
         mockMvc.perform(requestBuilder)
-                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(status().isOk())
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].id").value(bookings.get(0).getId()));
     }
 
@@ -154,7 +161,7 @@ public class BookingControllerTest {
 
         // Assert the response
         mockMvc.perform(requestBuilder)
-                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(status().isOk())
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].id").value(bookings.get(0).getId()));
     }
 }

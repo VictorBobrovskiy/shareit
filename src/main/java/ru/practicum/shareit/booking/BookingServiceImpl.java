@@ -148,7 +148,7 @@ public class BookingServiceImpl implements BookingService {
                 .collect(Collectors.toList());
     }
 
-    private void checkUserExists(Long ownerId) {
+    public void checkUserExists(Long ownerId) {
         if (!userRepository.existsById(ownerId)) {
             throw new UserNotFoundException("User Not Found");
         }

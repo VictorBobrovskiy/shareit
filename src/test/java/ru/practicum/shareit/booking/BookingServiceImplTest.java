@@ -42,6 +42,14 @@ public class BookingServiceImplTest {
     private BookingServiceImpl bookingService;
 
     @Test
+    public void checkUserExistsTest() {
+        User booker = new User(10L);
+        BookingDto bookingDto = new BookingDto();
+        assertThrows(UserNotFoundException.class, () -> bookingService.checkUserExists(booker.getId()));
+
+    }
+
+    @Test
     public void addNewBookingValidData() {
         Long userId = 1L;
         BookingDto bookingDto = new BookingDto();
@@ -127,7 +135,18 @@ public class BookingServiceImplTest {
         when(bookingRepository.findById(bookingId)).thenReturn(Optional.empty());
 
         bookingService.approveBooking(userId, bookingId, true);
+    }
 
+    @Test(expected = ValidationException.class)
+    public void approveBookingInvalidUser() {
+        Long userId = 10L;
+        Long bookingId = 1L;
+        LocalDateTime now = LocalDateTime.now();
+        Booking booking = new Booking(bookingId, now.plusDays(1), now.plusDays(2), new Item(), new User(userId), Status.APPROVED);
+
+        when(bookingRepository.findById(bookingId)).thenReturn(Optional.of(booking));
+
+        assertNull(bookingService.approveBooking(userId, booking.getId(), true));
     }
 
     @Test
@@ -202,7 +221,18 @@ public class BookingServiceImplTest {
 
         assertThrows(IllegalArgumentException.class, () -> bookingService.getAllByBookerId(bookerId, state, from, size));
     }
+    @Test
+    public void getAllByOwnerIdInvalidPageParameters() {
+        Long bookerId = 1L;
+        String state = "ALL";
+        int from = -1;
+        int size = 10;
+        User booker = new User();
+        booker.setId(bookerId);
+        when(userRepository.existsById(bookerId)).thenReturn(true);
 
+        assertThrows(IllegalArgumentException.class, () -> bookingService.getAllByOwnerId(bookerId, state, from, size));
+    }
     @Test
     public void getAllByOwnerIdValidData() {
         Long ownerId = 1L;
