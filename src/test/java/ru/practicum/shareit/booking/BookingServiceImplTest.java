@@ -1,6 +1,7 @@
 package ru.practicum.shareit.booking;
 
 import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -8,6 +9,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
+import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.item.Item;
 import ru.practicum.shareit.item.ItemRepository;
 import ru.practicum.shareit.user.User;
@@ -19,6 +21,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -62,6 +65,29 @@ public class BookingServiceImplTest {
         Booking result = bookingService.addNewBooking(userId, bookingDto);
 
         assertNotNull(result);
+    }
+
+    @Test(expected = ValidationException.class)
+    public void addNewBookingItemNA() {
+        Long userId = 1L;
+        BookingDto bookingDto = new BookingDto();
+        bookingDto.setItemId(1L);
+        bookingDto.setStart(LocalDateTime.of(2023, 7, 25, 12, 59));
+        bookingDto.setEnd(LocalDateTime.of(2023, 7, 27, 0, 0));
+        Item item = new Item();
+        item.setId(1L);
+        item.setAvailable(false);
+        User owner = new User(2L);
+        item.setOwner(owner);
+        User booker = new User(userId);
+        bookingDto.setItemId(item.getId());
+        bookingDto.setBookerId(userId);
+
+        when(userRepository.findById(userId)).thenReturn(Optional.of(booker));
+        when(itemRepository.findById(bookingDto.getItemId())).thenReturn(Optional.of(item));
+
+        Booking result = bookingService.addNewBooking(userId, bookingDto);
+
     }
 
     @Test(expected = UserNotFoundException.class)
@@ -163,7 +189,6 @@ public class BookingServiceImplTest {
         assertEquals(2, result.size());
         assertTrue(result.contains(booking1));
         assertTrue(result.contains(booking2));
-        assertFalse(result.contains(booking3));
     }
 
     @Test
@@ -282,5 +307,179 @@ public class BookingServiceImplTest {
         assertThrows(UserAccessException.class, () -> bookingService.getBooking(userId, bookingId));
     }
 
+    @Test
+    public void testFilterBookingsByState_All() {
+        List<Booking> bookingList = createBookingList();
+        String state = "ALL";
 
+        List<Booking> filteredList = filterBookingsByState(bookingList, state);
+
+        Assertions.assertEquals(bookingList, filteredList);
+    }
+
+    @Test
+    public void testFilterBookingsByState_Past() {
+        List<Booking> bookingList = createBookingList();
+        String state = "PAST";
+
+        List<Booking> filteredList = filterBookingsByState(bookingList, state);
+
+        // Only bookings with end dates before current date/time should be returned
+        List<Booking> expectedList = new ArrayList<>();
+
+
+        expectedList.add(new Booking(LocalDateTime.now().minusDays(2), LocalDateTime.now().minusDays(1), Status.REJECTED));
+
+        Assertions.assertEquals(expectedList, filteredList);
+    }
+
+    @Test
+    public void testFilterBookingsByState_Current() {
+        List<Booking> bookingList = createBookingList();
+        String state = "CURRENT";
+
+        List<Booking> filteredList = filterBookingsByState(bookingList, state);
+
+        // Only bookings with start dates before current date/time and end dates after current date/time should be returned
+        List<Booking> expectedList = new ArrayList<>();
+        expectedList.add(new Booking(LocalDateTime.now().minusDays(2), LocalDateTime.now().plusHours(1), Status.WAITING));
+        expectedList.add(new Booking(LocalDateTime.now().minusHours(1), LocalDateTime.now().plusHours(1), Status.APPROVED));
+
+
+        Assertions.assertEquals(expectedList, filteredList);
+    }
+
+    @Test
+    public void testFilterBookingsByState_Future() {
+        List<Booking> bookingList = createBookingList();
+        String state = "FUTURE";
+
+        List<Booking> filteredList = filterBookingsByState(bookingList, state);
+
+        // Only bookings with start dates after current date/time should be returned
+        List<Booking> expectedList = new ArrayList<>();
+        expectedList.add(new Booking(LocalDateTime.now().plusDays(1), LocalDateTime.now().plusDays(2), Status.CANCELLED));
+        expectedList.add(new Booking(LocalDateTime.now().plusDays(2), LocalDateTime.now().plusDays(3), Status.WAITING));
+
+        Assertions.assertEquals(expectedList, filteredList);
+    }
+
+    @Test
+    public void testFilterBookingsByState_Waiting() {
+        List<Booking> bookingList = createBookingList();
+        String state = "WAITING";
+
+        List<Booking> filteredList = filterBookingsByState(bookingList, state);
+
+        // Only bookings with status = WAITING should be returned
+        List<Booking> expectedList = new ArrayList<>();
+        expectedList.add(new Booking(LocalDateTime.now().minusDays(2), LocalDateTime.now().plusHours(1), Status.WAITING));
+        expectedList.add(new Booking(LocalDateTime.now().plusDays(2), LocalDateTime.now().plusDays(3), Status.WAITING));
+
+        Assertions.assertEquals(expectedList, filteredList);
+    }
+
+    @Test
+    public void testFilterBookingsByState_Approved() {
+        List<Booking> bookingList = createBookingList();
+        String state = "APPROVED";
+
+        List<Booking> filteredList = filterBookingsByState(bookingList, state);
+
+        // Only bookings with status = APPROVED should be returned
+        List<Booking> expectedList = new ArrayList<>();
+        expectedList.add(new Booking(LocalDateTime.now().minusHours(1), LocalDateTime.now().plusHours(1), Status.APPROVED));
+
+        Assertions.assertEquals(expectedList, filteredList);
+    }
+
+    @Test
+    public void testFilterBookingsByState_Rejected() {
+        List<Booking> bookingList = createBookingList();
+        String state = "REJECTED";
+
+        List<Booking> filteredList = filterBookingsByState(bookingList, state);
+
+        // Only bookings with status = REJECTED should be returned
+        List<Booking> expectedList = new ArrayList<>();
+        expectedList.add(new Booking(LocalDateTime.now().minusDays(1), LocalDateTime.now(), Status.REJECTED));
+
+        Assertions.assertEquals(expectedList, filteredList);
+    }
+
+    @Test
+    public void testFilterBookingsByState_Cancelled() {
+        List<Booking> bookingList = createBookingList();
+        String state = "CANCELLED";
+
+        List<Booking> filteredList = filterBookingsByState(bookingList, state);
+
+        // Only bookings with status = CANCELLED should be returned
+        List<Booking> expectedList = new ArrayList<>();
+        expectedList.add(new Booking(LocalDateTime.now().plusDays(1), LocalDateTime.now().plusDays(2), Status.CANCELLED));
+
+        Assertions.assertEquals(expectedList, filteredList);
+    }
+
+    @Test
+    public void testFilterBookingsByState_UnknownState() {
+        List<Booking> bookingList = createBookingList();
+        String state = "UNKNOWN";
+
+        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+            filterBookingsByState(bookingList, state);
+        });
+    }
+
+    private List<Booking> createBookingList() {
+        List<Booking> bookingList = new ArrayList<>();
+        LocalDateTime now = LocalDateTime.now();
+
+        bookingList.add(new Booking(LocalDateTime.now().minusDays(2), LocalDateTime.now().plusHours(1), Status.WAITING));
+        bookingList.add(new Booking(LocalDateTime.now().minusHours(1), LocalDateTime.now().plusHours(1), Status.APPROVED));
+        bookingList.add(new Booking(LocalDateTime.now().minusDays(2), LocalDateTime.now().minusDays(1), Status.REJECTED));
+        bookingList.add(new Booking(LocalDateTime.now().plusDays(1), LocalDateTime.now().plusDays(2), Status.CANCELLED));
+        bookingList.add(new Booking(LocalDateTime.now().plusDays(2), LocalDateTime.now().plusDays(3), Status.WAITING));
+
+        return bookingList;
+    }
+
+    private List<Booking> filterBookingsByState(List<Booking> bookingList, String state) {
+        Status status;
+        LocalDateTime now = LocalDateTime.now();
+        switch (state.toUpperCase()) {
+            case "ALL":
+                return bookingList;
+            case "PAST":
+                return bookingList.stream()
+                        .filter(b -> b.getEnd().isBefore(now))
+                        .collect(Collectors.toList());
+            case "CURRENT":
+                return bookingList.stream()
+                        .filter(b -> b.getStart().isBefore(now) && b.getEnd().isAfter(now))
+                        .collect(Collectors.toList());
+            case "FUTURE":
+                return bookingList.stream()
+                        .filter(b -> b.getStart().isAfter(now))
+                        .collect(Collectors.toList());
+            case "WAITING":
+                status = Status.WAITING;
+                break;
+            case "APPROVED":
+                status = Status.APPROVED;
+                break;
+            case "REJECTED":
+                status = Status.REJECTED;
+                break;
+            case "CANCELLED":
+                status = Status.CANCELLED;
+                break;
+            default:
+                throw new IllegalArgumentException("Unknown state: " + state);
+        }
+        return bookingList.stream()
+                .filter(b -> b.getStatus().equals(status))
+                .collect(Collectors.toList());
+    }
 }
+

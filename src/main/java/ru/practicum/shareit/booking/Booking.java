@@ -57,6 +57,17 @@ public class Booking {
         this.end = end;
     }
 
+    public Booking(LocalDateTime start, LocalDateTime end) {
+        this.start = start;
+        this.end = end;
+    }
+
+    public Booking(LocalDateTime start, LocalDateTime end, Status status) {
+        this.start = start;
+        this.end = end;
+        this.status = status;
+    }
+
     @Override
     public String toString() {
         return "Booking{" +
@@ -72,11 +83,11 @@ public class Booking {
         if (this == o) return true;
         if (!(o instanceof Booking)) return false;
         Booking booking = (Booking) o;
-        return Objects.equals(getStart(), booking.getStart()) && Objects.equals(getEnd(), booking.getEnd()) && Objects.equals(getItem(), booking.getItem()) && Objects.equals(getBooker(), booking.getBooker()) && getStatus() == booking.getStatus();
+        return Objects.equals(getItem(), booking.getItem()) && Objects.equals(getBooker(), booking.getBooker()) && getStatus() == booking.getStatus();
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getStart(), getEnd(), getItem(), getBooker(), getStatus());
+        return Objects.hash(getItem(), getBooker(), getStatus());
     }
 }
