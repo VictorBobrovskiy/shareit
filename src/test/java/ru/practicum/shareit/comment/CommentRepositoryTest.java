@@ -45,7 +45,7 @@ public class CommentRepositoryTest {
         item2.setAvailable(true);
 
 
-        User owner = new User( "name", "name@email.com");
+        User owner = new User("name", "name@email.com");
         userRepository.save(owner);
         item.setOwner(owner);
         item2.setOwner(owner);
