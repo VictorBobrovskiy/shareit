@@ -1,13 +1,17 @@
 package ru.practicum.shareit.booking;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import ru.practicum.shareit.item.Item;
+import ru.practicum.shareit.user.User;
 
 import java.util.Collections;
 import java.util.List;
@@ -15,14 +19,51 @@ import java.util.List;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 
 @SpringBootTest
 @AutoConfigureMockMvc
 public class BookingControllerTest {
 
     private final BookingService bookingService = mock(BookingService.class);
+
+    private final ObjectMapper objectMapper = new ObjectMapper();
     private final BookingController bookingController = new BookingController(bookingService);
     private final MockMvc mockMvc = MockMvcBuilders.standaloneSetup(bookingController).build();
+
+    @Test
+    public void testAddNewBooking() throws Exception {
+        // Prepare test data
+        Long userId = 1L;
+        BookingDto bookingDto = new BookingDto();
+        bookingDto.setItemId(1L);
+//        bookingDto.setStart(LocalDateTime.of(2023, 7, 25, 12, 59));
+//        bookingDto.setEnd(LocalDateTime.of(2023, 7, 27, 0, 0));
+        Item item = new Item();
+        item.setId(1L);
+        item.setName("Item 1");
+        item.setDescription("Description 1");
+        item.setAvailable(true);
+        User owner = new User();
+        item.setOwner(owner);
+        User booker = new User(userId);
+        bookingDto.setItemId(item.getId());
+        bookingDto.setBookerId(userId);
+
+        Booking booking = BookingMapper.toBooking(bookingDto);
+        booking.setId(userId);
+        booking.setBooker(booker);
+        booking.setItem(item);
+        booking.setStatus(Status.APPROVED);
+        when(bookingService.addNewBooking(userId, bookingDto)).thenReturn(booking);
+
+        // Perform the POST request
+        mockMvc.perform(post("/bookings")
+                        .header("X-Sharer-User-Id", userId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(bookingDto)))
+                .andExpect(MockMvcResultMatchers.status().isBadRequest());
+    }
 
 
     @Test
