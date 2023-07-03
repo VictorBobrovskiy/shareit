@@ -37,7 +37,7 @@ public class ItemDtoTest {
 
         ItemDto itemDto = new ItemDto(id, name, description, available);
 
-        String expectedToString = "ItemDto{id=1, name='Test Item', description='Item Description', available=true}";
+        String expectedToString = "ItemDto(id=1, name=Test Item, description=Item Description, available=true, requestId=null, lastBooking=null, nextBooking=null, comments=null)";
         Assertions.assertEquals(expectedToString, itemDto.toString());
     }
 
