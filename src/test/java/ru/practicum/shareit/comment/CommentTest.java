@@ -26,10 +26,12 @@ public class CommentTest {
 
     @Test
     public void testEqualsAndHashCode() {
-        Comment comment1 = new Comment("Test Comment", new Item(1L), new User("Test User"));
+        Item item = new Item(1L);
+        User user = new User("Test User");
+        Comment comment1 = new Comment("Test Comment", item, user);
         comment1.setId(1L);
 
-        Comment comment2 = new Comment("Test Comment", new Item(1L), new User("Test User"));
+        Comment comment2 = new Comment("Test Comment", item, user);
         comment2.setId(1L);
 
         Assertions.assertEquals(comment1, comment2);
