@@ -15,6 +15,7 @@ import ru.practicum.shareit.comment.CommentDto;
 import ru.practicum.shareit.comment.CommentRepository;
 import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.user.User;
+import ru.practicum.shareit.user.UserAccessException;
 import ru.practicum.shareit.user.UserNotFoundException;
 import ru.practicum.shareit.user.UserRepository;
 
@@ -52,6 +53,66 @@ class ItemServiceImplTest {
     }
 
     @Test
+    public void testGetItems2() {
+        // Mock data
+        Long userId = 1L;
+        int from = 0;
+        int size = 10;
+        List<Item> itemList = new ArrayList<>();
+        itemList.add(new Item());
+        when(itemRepository.findAllItemsByOwnerIdOrderById(userId)).thenReturn(itemList);
+
+        // Invoke the method
+        List<ItemDto> result = itemService.getItems(userId, from, size);
+
+        // Verify the behavior and assertions
+        verify(itemRepository, times(1)).findAllItemsByOwnerIdOrderById(userId);
+        Assertions.assertEquals(1, result.size());
+        // Add additional assertions as needed
+    }
+
+    @Test
+    public void testDeleteItem2() {
+        // Mock data
+        Long userId = 1L;
+        Long itemId = 1L;
+        Item item = new Item();
+        item.setOwner(new User(userId));
+        when(itemRepository.findById(itemId)).thenReturn(Optional.of(item));
+
+        // Invoke the method
+        itemService.deleteItem(userId, itemId);
+
+        // Verify the behavior and assertions
+        verify(itemRepository, times(1)).findById(itemId);
+        verify(itemRepository, times(1)).deleteById(itemId);
+        // Add additional assertions as needed
+    }
+
+    @Test
+    public void testUpdateItem2() {
+        // Mock data
+        Long userId = 1L;
+        Long itemId = 1L;
+        Item item = new Item();
+        item.setOwner(new User(userId));
+        when(itemRepository.findById(itemId)).thenReturn(Optional.of(item));
+        when(itemRepository.save(any(Item.class))).thenReturn(item);
+
+        ItemDto itemDto = new ItemDto();
+        itemDto.setName("Updated Name");
+
+        // Invoke the method
+        ItemDto result = itemService.updateItem(userId, itemId, itemDto);
+
+        // Verify the behavior and assertions
+        verify(itemRepository, times(1)).findById(itemId);
+        verify(itemRepository, times(1)).save(item);
+        Assertions.assertEquals(itemDto.getName(), result.getName());
+        // Add additional assertions as needed
+    }
+
+    @Test
     public void testGetItems() {
         // Mock data
         Long userId = 1L;
@@ -71,6 +132,30 @@ class ItemServiceImplTest {
     }
 
     @Test
+    public void testGetItems_InvalidFrom() {
+        // Mock data
+        Long userId = 1L;
+        int from = -1;
+        int size = 10;
+
+        // Invoke the method and assert the exception
+        Assertions.assertThrows(IllegalArgumentException.class,
+                () -> itemService.getItems(userId, from, size));
+    }
+
+    @Test
+    public void testGetItems_InvalidSize() {
+        // Mock data
+        Long userId = 1L;
+        int from = 0;
+        int size = 0;
+
+        // Invoke the method and assert the exception
+        Assertions.assertThrows(IllegalArgumentException.class,
+                () -> itemService.getItems(userId, from, size));
+    }
+
+    @Test
     public void testDeleteItem() {
         // Mock data
         Long userId = 1L;
@@ -86,6 +171,32 @@ class ItemServiceImplTest {
         verify(itemRepository, times(1)).findById(itemId);
         verify(itemRepository, times(1)).deleteById(itemId);
         // Add additional assertions as needed
+    }
+
+    @Test
+    public void testDeleteItem_WrongUser() {
+        // Mock data
+        Long userId = 1L;
+        Long itemId = 1L;
+        Item item = new Item();
+        item.setOwner(new User(2L));
+        when(itemRepository.findById(itemId)).thenReturn(Optional.of(item));
+
+        // Invoke the method and assert the exception
+        Assertions.assertThrows(UserAccessException.class,
+                () -> itemService.deleteItem(userId, itemId));
+    }
+
+    @Test
+    public void testDeleteItem_ItemNotFound() {
+        // Mock data
+        Long userId = 1L;
+        Long itemId = 1L;
+        when(itemRepository.findById(itemId)).thenReturn(Optional.empty());
+
+        // Invoke the method and assert the exception
+        Assertions.assertThrows(ItemNotFoundException.class,
+                () -> itemService.deleteItem(userId, itemId));
     }
 
     @Test
@@ -111,18 +222,51 @@ class ItemServiceImplTest {
         // Add additional assertions as needed
     }
 
+    @Test
+    public void testUpdateItem_WrongUser() {
+        // Mock data
+        Long userId = 1L;
+        Long itemId = 1L;
+        Item item = new Item();
+        item.setOwner(new User(2L));
+        when(itemRepository.findById(itemId)).thenReturn(Optional.of(item));
+
+        ItemDto itemDto = new ItemDto();
+        itemDto.setName("Updated Name");
+
+        // Invoke the method and assert the exception
+        Assertions.assertThrows(UserAccessException.class,
+                () -> itemService.updateItem(userId, itemId, itemDto));
+    }
+
+    @Test
+    public void testUpdateItem_ItemNotFound() {
+        // Mock data
+        Long userId = 1L;
+        Long itemId = 1L;
+        when(itemRepository.findById(itemId)).thenReturn(Optional.empty());
+
+        ItemDto itemDto = new ItemDto();
+        itemDto.setName("Updated Name");
+
+        // Invoke the method and assert the exception
+        Assertions.assertThrows(ItemNotFoundException.class,
+                () -> itemService.updateItem(userId, itemId, itemDto));
+    }
+
 
     @Test
     public void getNextBookingValidData() {
         Item item = new Item();
         item.setId(1L);
 
-        LocalDateTime now = LocalDateTime.now().minusMinutes(1);
+        LocalDateTime now = LocalDateTime.now().plusMinutes(1);
         Booking nextBooking = new Booking();
         nextBooking.setId(1L);
         nextBooking.setItem(item);
         nextBooking.setStatus(Status.APPROVED);
-
+        nextBooking.setStart(now);
+        nextBooking.setEnd(now.plusMinutes(1));
         when(bookingRepository.findFirstByItemAndStartAfterAndStatusOrderByStartAsc(item.getId(), now, "APPROVED"))
                 .thenReturn(Optional.of(nextBooking));
 
