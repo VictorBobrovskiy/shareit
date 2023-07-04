@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import ru.practicum.shareit.Generated;
 import ru.practicum.shareit.user.User;
 
 import javax.persistence.*;
@@ -18,6 +19,7 @@ import java.util.Objects;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@Generated
 public class ItemRequest {
 
     @Id

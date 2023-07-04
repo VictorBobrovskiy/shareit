@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import ru.practicum.shareit.Generated;
 import ru.practicum.shareit.ItemRequest.ItemRequest;
 import ru.practicum.shareit.user.User;
 
@@ -19,6 +20,7 @@ import java.util.Objects;
 @Setter
 @Entity
 @Table(name = "item")
+@Generated
 public class Item {
 
     @Id

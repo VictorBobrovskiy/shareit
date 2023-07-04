@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.format.annotation.DateTimeFormat;
+import ru.practicum.shareit.Generated;
 import ru.practicum.shareit.item.Item;
 import ru.practicum.shareit.user.User;
 
@@ -20,6 +21,7 @@ import java.util.Objects;
 @NoArgsConstructor
 @Entity
 @Table(name = "booking")
+@Generated
 public class Booking {
 
     @Id
