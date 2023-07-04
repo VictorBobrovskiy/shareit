@@ -186,7 +186,6 @@ public class BookingServiceImplTest {
         booking.setStart(LocalDateTime.of(2023, 7, 25, 12, 59));
         booking.setEnd(LocalDateTime.of(2023, 7, 27, 0, 0));
         when(bookingRepository.findById(bookingId)).thenReturn(Optional.of(booking));
-//        when(userRepository.findById(bookingId)).thenReturn(Optional.of(user));
 
         bookingService.approveBooking(bookerId, bookingId, true);
     }

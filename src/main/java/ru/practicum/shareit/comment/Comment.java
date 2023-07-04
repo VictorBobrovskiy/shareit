@@ -80,6 +80,6 @@ public class Comment {
 
     @Override
     public int hashCode() {
-        return Objects.hash(text, item, author, created);
+        return Objects.hash(text, item, author);
     }
 }

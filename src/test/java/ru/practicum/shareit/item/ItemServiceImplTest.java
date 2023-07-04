@@ -3,11 +3,14 @@ package ru.practicum.shareit.item;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.mockito.junit.MockitoJUnitRunner;
 import ru.practicum.shareit.ItemRequest.ItemRequest;
 import ru.practicum.shareit.booking.Booking;
+import ru.practicum.shareit.booking.BookingDto;
 import ru.practicum.shareit.booking.BookingRepository;
 import ru.practicum.shareit.booking.Status;
 import ru.practicum.shareit.comment.Comment;
@@ -30,6 +33,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.*;
 
+@RunWith(MockitoJUnitRunner.class)
 class ItemServiceImplTest {
 
     @Mock
@@ -281,6 +285,36 @@ class ItemServiceImplTest {
         Long itemId = 1L;
         Item item = new Item(itemId, "Item 1", "Description 1", true, new ItemRequest());
         item.setOwner(new User(userId, "User 1", "user1@example.com"));
+
+        when(itemRepository.findById(itemId)).thenReturn(Optional.of(item));
+        when(bookingRepository.findFirstByItemAndStartAfterAndStatusOrderByStartAsc(anyLong(), any(LocalDateTime.class), any())).thenReturn(Optional.empty());
+        when(bookingRepository.findFirstByItemAndStartBeforeAndStatusOrderByStartDesc(anyLong(), any(LocalDateTime.class), any())).thenReturn(Optional.empty());
+        when(commentRepository.findAllByItemId(itemId)).thenReturn(new ArrayList<>());
+
+        ItemDto result = itemService.getItem(userId, itemId);
+
+        assertNotNull(result);
+        assertEquals(item.getName(), result.getName());
+        assertEquals(item.getDescription(), result.getDescription());
+        assertNull(result.getLastBooking());
+        assertNull(result.getNextBooking());
+        verify(itemRepository).findById(itemId);
+        verify(bookingRepository).findFirstByItemAndStartAfterAndStatusOrderByStartAsc(anyLong(), any(LocalDateTime.class), any());
+        verify(bookingRepository).findFirstByItemAndStartBeforeAndStatusOrderByStartDesc(anyLong(), any(LocalDateTime.class), any());
+        verify(commentRepository).findAllByItemId(itemId);
+    }
+
+    @Test
+    void testGetItem() {
+        Long userId = 1L;
+        Long itemId = 1L;
+        ItemDto itemDto = new ItemDto(itemId, "Item 1", "Description 1", true);
+        BookingDto booking = new BookingDto();
+        itemDto.setLastBooking(booking);
+        itemDto.setNextBooking(booking);
+        User user = new User(userId, "User 1", "user1@example.com");
+        Item item = ItemMapper.mapDtoToItem(itemDto);
+        item.setOwner(user);
         when(itemRepository.findById(itemId)).thenReturn(Optional.of(item));
         when(bookingRepository.findFirstByItemAndStartAfterAndStatusOrderByStartAsc(anyLong(), any(LocalDateTime.class), any())).thenReturn(Optional.empty());
         when(bookingRepository.findFirstByItemAndStartBeforeAndStatusOrderByStartDesc(anyLong(), any(LocalDateTime.class), any())).thenReturn(Optional.empty());
@@ -339,6 +373,24 @@ class ItemServiceImplTest {
     }
 
     @Test
+    void addNewItemInValidUserIdAndItem() {
+        Long userId = 1L;
+        ItemDto itemDto = new ItemDto();
+        itemDto.setName("Item 1");
+        itemDto.setDescription("Description 1");
+        itemDto.setAvailable(true);
+        User user = new User(userId, "User 1", "user1@example.com");
+        when(userRepository.findById(userId)).thenReturn(Optional.empty());
+        when(itemRepository.save(any(Item.class))).thenAnswer(invocation -> {
+            Item savedItem = invocation.getArgument(0);
+            savedItem.setId(1L);
+            return savedItem;
+        });
+
+        assertThrows(UserNotFoundException.class, () -> itemService.addNewItem(userId, itemDto));
+    }
+
+    @Test
     void deleteItemInvalidItemId() {
         Long userId = 1L;
         Long itemId = 1L;
@@ -361,6 +413,32 @@ class ItemServiceImplTest {
         verify(itemRepository, never()).deleteById(itemId);
     }
 
+    @Test
+    void updateItemWithNameAndDescr() {
+        // Mock data
+        Long userId = 1L;
+        Long itemId = 1L;
+        Item item = new Item();
+        item.setName("Item");
+        item.setDescription("Item Descr");
+        item.setOwner(new User(userId));
+        item.setAvailable(false);
+        when(itemRepository.findById(itemId)).thenReturn(Optional.of(item));
+        when(itemRepository.save(any(Item.class))).thenReturn(item);
+
+        ItemDto itemDto = new ItemDto();
+        itemDto.setName("Updated Name");
+        itemDto.setDescription("Updated descr");
+        itemDto.setAvailable(true);
+
+        // Invoke the method
+        ItemDto result = itemService.updateItem(userId, itemId, itemDto);
+
+        // Verify the behavior and assertions
+        verify(itemRepository, times(1)).findById(itemId);
+        verify(itemRepository, times(1)).save(item);
+        Assertions.assertEquals(itemDto.getName(), result.getName());
+    }
 
     @Test
     void updateItemInvalidItemId() {
@@ -383,7 +461,7 @@ class ItemServiceImplTest {
         ItemDto itemDto = new ItemDto();
         Item item = new Item(itemId, "Item 1", "Description 1", true, new ItemRequest());
         when(itemRepository.findById(itemId)).thenReturn(Optional.of(item));
-        ;
+
         verify(itemRepository, never()).save(any(Item.class));
     }
 
@@ -408,6 +486,43 @@ class ItemServiceImplTest {
         verify(itemRepository).findAllItemsByDescriptionContainingIgnoreCaseAndAvailableTrue(searchText);
     }
 
+    @Test
+    void searchForItemsBlankText() {
+        String searchText = " ";
+        int from = 0;
+        int size = 10;
+        Item item1 = new Item(1L, "Item 1", "Description 1", true, new ItemRequest());
+        Item item2 = new Item(2L, "Item 2", "Description 2", true, new ItemRequest());
+        List<Item> items = Arrays.asList(item1, item2);
+        when(itemRepository.findAllItemsByDescriptionContainingIgnoreCaseAndAvailableTrue(searchText))
+                .thenReturn(new ArrayList<>());
+
+        List<ItemDto> result = itemService.searchForItems(searchText, from, size);
+
+        assertNotNull(result);
+        assertEquals(0, result.size());
+    }
+
+    @Test
+    void searchForItemsValidTextWrongPageNumber() {
+        String searchText = "item";
+        int from = -1;
+        int size = 10;
+        Item item1 = new Item(1L, "Item 1", "Description 1", true, new ItemRequest());
+        Item item2 = new Item(2L, "Item 2", "Description 2", true, new ItemRequest());
+        List<Item> items = Arrays.asList(item1, item2);
+        when(itemRepository.findAllItemsByDescriptionContainingIgnoreCaseAndAvailableTrue(searchText)).thenReturn(items);
+
+        assertThrows(IllegalArgumentException.class, () -> itemService.searchForItems(searchText, from, size));
+
+//        assertNotNull(result);
+//        assertEquals(2, result.size());
+//        assertEquals(item1.getName(), result.get(0).getName());
+//        assertEquals(item1.getDescription(), result.get(0).getDescription());
+//        assertEquals(item2.getName(), result.get(1).getName());
+//        assertEquals(item2.getDescription(), result.get(1).getDescription());
+//        verify(itemRepository).findAllItemsByDescriptionContainingIgnoreCaseAndAvailableTrue(searchText);
+    }
 
     @Test
     public void getNextBookingNoBookingFound() {
