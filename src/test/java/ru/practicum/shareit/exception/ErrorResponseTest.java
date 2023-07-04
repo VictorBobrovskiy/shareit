@@ -11,6 +11,6 @@ class ErrorResponseTest {
         ErrorResponse errorResponse = new ErrorResponse("Error occurred");
 
         // Verify the error message
-        Assertions.assertEquals("Error occurred", errorResponse.getMessage());
+        Assertions.assertEquals("Error occurred", errorResponse.getError());
     }
 }

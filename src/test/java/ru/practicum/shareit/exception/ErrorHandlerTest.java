@@ -20,7 +20,7 @@ public class ErrorHandlerTest {
         ResponseEntity<ErrorResponse> response = new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
 
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-        assertEquals("Validation error", response.getBody().getMessage());
+        assertEquals("Validation error", response.getBody().getError());
     }
 
     @Test
@@ -32,7 +32,7 @@ public class ErrorHandlerTest {
         ResponseEntity<ErrorResponse> response = new ResponseEntity<>(errorResponse, HttpStatus.CONFLICT);
 
         assertEquals(HttpStatus.CONFLICT, response.getStatusCode());
-        assertEquals("Conflict error", response.getBody().getMessage());
+        assertEquals("Conflict error", response.getBody().getError());
     }
 
     @Test
@@ -44,7 +44,7 @@ public class ErrorHandlerTest {
         ResponseEntity<ErrorResponse> response = new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
 
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
-        assertEquals("User not found", response.getBody().getMessage());
+        assertEquals("User not found", response.getBody().getError());
     }
 
     @Test
@@ -57,6 +57,6 @@ public class ErrorHandlerTest {
 
 
         assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
-        assertEquals("Internal Server Error", response.getBody().getMessage());
+        assertEquals("Internal Server Error", response.getBody().getError());
     }
 }
