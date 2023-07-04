@@ -221,6 +221,7 @@ public class BookingServiceImplTest {
 
         assertThrows(IllegalArgumentException.class, () -> bookingService.getAllByBookerId(bookerId, state, from, size));
     }
+
     @Test
     public void getAllByOwnerIdInvalidPageParameters() {
         Long bookerId = 1L;
@@ -233,6 +234,7 @@ public class BookingServiceImplTest {
 
         assertThrows(IllegalArgumentException.class, () -> bookingService.getAllByOwnerId(bookerId, state, from, size));
     }
+
     @Test
     public void getAllByOwnerIdValidData() {
         Long ownerId = 1L;
