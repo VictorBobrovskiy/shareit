@@ -10,7 +10,6 @@ import org.mockito.MockitoAnnotations;
 import org.mockito.junit.MockitoJUnitRunner;
 import ru.practicum.shareit.ItemRequest.ItemRequest;
 import ru.practicum.shareit.booking.Booking;
-import ru.practicum.shareit.booking.BookingDto;
 import ru.practicum.shareit.booking.BookingRepository;
 import ru.practicum.shareit.booking.Status;
 import ru.practicum.shareit.comment.Comment;
@@ -120,12 +119,24 @@ class ItemServiceImplTest {
     public void testGetItems() {
         // Mock data
         Long userId = 1L;
+        Long itemId = 1L;
         int from = 0;
         int size = 10;
         List<Item> itemList = new ArrayList<>();
-        itemList.add(new Item());
+        Item item = new Item(itemId);
+        itemList.add(item);
+        Booking booking = new Booking();
+        booking.setItem(item);
+        User booker = new User(2L);
+        booking.setBooker(booker);
         when(itemRepository.findAllItemsByOwnerIdOrderById(userId)).thenReturn(itemList);
+        when(bookingRepository.findFirstByItemAndStartAfterAndStatusOrderByStartAsc(
+                anyLong(), any(LocalDateTime.class), any())).thenReturn(Optional.of(booking));
 
+        when(bookingRepository.findFirstByItemAndStartBeforeAndStatusOrderByStartDesc(
+                anyLong(), any(LocalDateTime.class), any())).thenReturn(Optional.of(booking));
+
+        when(commentRepository.findAllByItemId(itemId)).thenReturn(new ArrayList<>());
         // Invoke the method
         List<ItemDto> result = itemService.getItems(userId, from, size);
 
@@ -308,16 +319,23 @@ class ItemServiceImplTest {
     void testGetItem() {
         Long userId = 1L;
         Long itemId = 1L;
-        ItemDto itemDto = new ItemDto(itemId, "Item 1", "Description 1", true);
-        BookingDto booking = new BookingDto();
-        itemDto.setLastBooking(booking);
-        itemDto.setNextBooking(booking);
-        User user = new User(userId, "User 1", "user1@example.com");
-        Item item = ItemMapper.mapDtoToItem(itemDto);
-        item.setOwner(user);
+        Item item = new Item(itemId, "Item 1", "Description 1", true, null);
+        User owner = new User(userId, "User 1", "user1@example.com");
+        item.setOwner(owner);
+        Booking booking = new Booking();
+        booking.setItem(item);
+        User booker = new User(2L);
+        booking.setBooker(booker);
+        ItemDto itemDto = ItemMapper.mapItemToDto(item);
+
         when(itemRepository.findById(itemId)).thenReturn(Optional.of(item));
-        when(bookingRepository.findFirstByItemAndStartAfterAndStatusOrderByStartAsc(anyLong(), any(LocalDateTime.class), any())).thenReturn(Optional.empty());
-        when(bookingRepository.findFirstByItemAndStartBeforeAndStatusOrderByStartDesc(anyLong(), any(LocalDateTime.class), any())).thenReturn(Optional.empty());
+
+        when(bookingRepository.findFirstByItemAndStartAfterAndStatusOrderByStartAsc(
+                anyLong(), any(LocalDateTime.class), any())).thenReturn(Optional.of(booking));
+
+        when(bookingRepository.findFirstByItemAndStartBeforeAndStatusOrderByStartDesc(
+                anyLong(), any(LocalDateTime.class), any())).thenReturn(Optional.of(booking));
+
         when(commentRepository.findAllByItemId(itemId)).thenReturn(new ArrayList<>());
 
         ItemDto result = itemService.getItem(userId, itemId);
@@ -325,8 +343,8 @@ class ItemServiceImplTest {
         assertNotNull(result);
         assertEquals(item.getName(), result.getName());
         assertEquals(item.getDescription(), result.getDescription());
-        assertNull(result.getLastBooking());
-        assertNull(result.getNextBooking());
+        assertNotNull(result.getLastBooking());
+        assertNotNull(result.getNextBooking());
         verify(itemRepository).findById(itemId);
         verify(bookingRepository).findFirstByItemAndStartAfterAndStatusOrderByStartAsc(anyLong(), any(LocalDateTime.class), any());
         verify(bookingRepository).findFirstByItemAndStartBeforeAndStatusOrderByStartDesc(anyLong(), any(LocalDateTime.class), any());
