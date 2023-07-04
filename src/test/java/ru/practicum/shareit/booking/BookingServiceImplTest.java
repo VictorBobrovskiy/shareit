@@ -2,9 +2,11 @@ package ru.practicum.shareit.booking;
 
 import org.junit.Test;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -41,10 +43,14 @@ public class BookingServiceImplTest {
     @InjectMocks
     private BookingServiceImpl bookingService;
 
+    @BeforeEach
+    void setUp() {
+        MockitoAnnotations.openMocks(this);
+    }
+
     @Test
     public void checkUserExistsTest() {
         User booker = new User(10L);
-        BookingDto bookingDto = new BookingDto();
         assertThrows(UserNotFoundException.class, () -> bookingService.checkUserExists(booker.getId()));
 
     }
