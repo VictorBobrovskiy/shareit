@@ -166,6 +166,17 @@ public class ItemRequestServiceImplTest {
     }
 
     @Test
+    void getAllItemRequestsInvalidPagination() {
+        int from = -1;
+        int size = 0;
+        Long userId = 1L;
+
+        assertThrows(IllegalArgumentException.class, () -> PageRequest.of(from, size));
+
+        assertThrows(IllegalArgumentException.class, () -> itemRequestService.getAllItemRequests(userId, from, size));
+    }
+
+    @Test
     void getItemRequestValidUserAndItemRequest() {
         Long userId = 1L;
         Long itemRequestId = 1L;
