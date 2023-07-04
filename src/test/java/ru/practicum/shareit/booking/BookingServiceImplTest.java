@@ -106,7 +106,40 @@ public class BookingServiceImplTest {
         when(userRepository.findById(userId)).thenReturn(Optional.empty());
 
         bookingService.addNewBooking(userId, bookingDto);
+    }
 
+    @Test(expected = UserAccessException.class)
+    public void addNewBookingInvalidUser2() {
+        Long userId = 1L;
+        User user = new User(userId);
+        Item item = new Item(user, "Name", "Descr", true);
+        item.setId(1L);
+        BookingDto bookingDto = new BookingDto();
+        bookingDto.setItemId(1L);
+        bookingDto.setBookerId(userId);
+        bookingDto.setStart(LocalDateTime.of(2023, 7, 25, 12, 59));
+        bookingDto.setEnd(LocalDateTime.of(2023, 7, 27, 0, 0));
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+        when(itemRepository.findById(userId)).thenReturn(Optional.of(item));
+
+        bookingService.addNewBooking(userId, bookingDto);
+    }
+
+    @Test(expected = ValidationException.class)
+    public void addNewBookingInvalidTiming() {
+        Long userId = 1L;
+        User user = new User(userId);
+        Item item = new Item(user, "Name", "Descr", true);
+        item.setId(1L);
+        BookingDto bookingDto = new BookingDto();
+        bookingDto.setItemId(1L);
+        bookingDto.setBookerId(userId);
+        bookingDto.setEnd(LocalDateTime.of(2023, 7, 25, 12, 59));
+        bookingDto.setStart(LocalDateTime.of(2023, 7, 27, 0, 0));
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+        when(itemRepository.findById(userId)).thenReturn(Optional.of(item));
+
+        bookingService.addNewBooking(userId, bookingDto);
     }
 
     @Test
@@ -137,17 +170,27 @@ public class BookingServiceImplTest {
         bookingService.approveBooking(userId, bookingId, true);
     }
 
-    @Test(expected = ValidationException.class)
+    @Test(expected = UserNotFoundException.class)
     public void approveBookingInvalidUser() {
-        Long userId = 10L;
+        Long ownerId = 1L;
         Long bookingId = 1L;
-        LocalDateTime now = LocalDateTime.now();
-        Booking booking = new Booking(bookingId, now.plusDays(1), now.plusDays(2), new Item(), new User(userId), Status.APPROVED);
-
+        Booking booking = new Booking();
+        booking.setStatus(Status.WAITING);
+        Item item = new Item();
+        User owner = new User(ownerId);
+        item.setOwner(owner);
+        booking.setItem(item);
+        Long bookerId = 2L;
+        User booker = new User(bookerId);
+        booking.setBooker(booker);
+        booking.setStart(LocalDateTime.of(2023, 7, 25, 12, 59));
+        booking.setEnd(LocalDateTime.of(2023, 7, 27, 0, 0));
         when(bookingRepository.findById(bookingId)).thenReturn(Optional.of(booking));
+//        when(userRepository.findById(bookingId)).thenReturn(Optional.of(user));
 
-        assertNull(bookingService.approveBooking(userId, booking.getId(), true));
+        bookingService.approveBooking(bookerId, bookingId, true);
     }
+
 
     @Test
     public void getAllByBookerIdValidData() {
