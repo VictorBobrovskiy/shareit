@@ -6,7 +6,7 @@ import java.util.List;
 
 public interface ItemService {
 
-    List<ItemDto> getItems(Long userId);
+    List<ItemDto> getItems(Long userId, int from, int size);
 
     ItemDto addNewItem(Long userId, ItemDto itemDto);
 
@@ -16,7 +16,7 @@ public interface ItemService {
 
     ItemDto getItem(Long userId, Long itemId);
 
-    List<ItemDto> searchForItems(String text);
+    List<ItemDto> searchForItems(String text, int from, int size);
 
     CommentDto addNewComment(Long userId, Long itemId, CommentDto commentDto);
 }

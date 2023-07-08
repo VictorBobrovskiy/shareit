@@ -1,6 +1,9 @@
 package ru.practicum.shareit.booking;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.item.Item;
@@ -19,7 +22,9 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 @Transactional
+@Generated
 public class BookingServiceImpl implements BookingService {
 
     private final BookingRepository bookingRepository;
@@ -47,6 +52,7 @@ public class BookingServiceImpl implements BookingService {
         booking.setBooker(booker);
         booking.setItem(item);
         booking.setStatus(Status.WAITING);
+        log.debug("New booking by user " + userId + " created");
         return bookingRepository.save(booking);
     }
 
@@ -61,6 +67,7 @@ public class BookingServiceImpl implements BookingService {
             throw new UserNotFoundException("Only owners can change status");
         }
         booking.setStatus(approved ? Status.APPROVED : Status.REJECTED);
+        log.debug("Booking by user " + userId + " approved");
         return booking;
     }
 
@@ -73,25 +80,38 @@ public class BookingServiceImpl implements BookingService {
                 && !Objects.equals(userId, booking.getBooker().getId())) {
             throw new UserAccessException("You are neither the booker nor the owner of the item to be booked");
         } else {
+            log.debug("Booking with id " + id + " found");
             return booking;
         }
     }
 
     @Override
-    public List<Booking> getAllByBookerId(Long bookerId, String state) {
+    public List<Booking> getAllByBookerId(Long bookerId, String state, int from, int size) {
         checkUserExists(bookerId);
-        List<Booking> bookingList = bookingRepository.findAllBookingsByBookerIdOrderByStartDesc(bookerId);
-        return filterBookingsByState(bookingList, state);
+        if (size < 1 || from < 0) {
+            throw new IllegalArgumentException("Wrong page number");
+        }
+        int pageNum = from / size;
+        Page<Booking> bookingPage = bookingRepository
+                .findAllBookingsByBookerIdOrderByStartDesc(bookerId, PageRequest.of(pageNum, size));
+        log.debug("Bookings by booker " + bookerId + " found");
+        return filterBookingsByState(bookingPage.toList(), state);
     }
 
     @Override
-    public List<Booking> getAllByOwnerId(Long ownerId, String state) {
+    public List<Booking> getAllByOwnerId(Long ownerId, String state, int from, int size) {
         checkUserExists(ownerId);
-        List<Booking> bookingList = bookingRepository.findAllBookingsByItemOwnerIdOrderByStartDesc(ownerId);
-        return filterBookingsByState(bookingList, state);
+        if (size < 1 || from < 0) {
+            throw new IllegalArgumentException("Wrong page number");
+        }
+        int pageNum = from / size;
+        Page<Booking> bookingList = bookingRepository
+                .findAllBookingsByItemOwnerIdOrderByStartDesc(ownerId, PageRequest.of(pageNum, size));
+        log.debug("Bookings for item owner " + ownerId + " found");
+        return filterBookingsByState(bookingList.toList(), state);
     }
 
-    private List<Booking> filterBookingsByState(List<Booking> bookingList, String state) {
+    public List<Booking> filterBookingsByState(List<Booking> bookingList, String state) {
         Status status;
         LocalDateTime now = LocalDateTime.now();
         switch (state.toUpperCase()) {
@@ -129,8 +149,7 @@ public class BookingServiceImpl implements BookingService {
                 .collect(Collectors.toList());
     }
 
-
-    private void checkUserExists(Long ownerId) {
+    public void checkUserExists(Long ownerId) {
         if (!userRepository.existsById(ownerId)) {
             throw new UserNotFoundException("User Not Found");
         }

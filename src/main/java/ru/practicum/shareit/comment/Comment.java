@@ -1,9 +1,11 @@
 package ru.practicum.shareit.comment;
 
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.springframework.format.annotation.DateTimeFormat;
+import ru.practicum.shareit.Generated;
 import ru.practicum.shareit.item.Item;
 import ru.practicum.shareit.user.User;
 
@@ -11,12 +13,15 @@ import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
+import java.util.Objects;
 
-@Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Getter
+@Setter
 @Entity
 @Table(name = "comment")
+@Generated
 public class Comment {
 
     @Id
@@ -49,5 +54,34 @@ public class Comment {
         this.item = item;
         this.author = author;
         this.created = LocalDateTime.now();
+    }
+
+    public Comment(String text, Item item, User author) {
+        this.text = text;
+        this.item = item;
+        this.author = author;
+        this.created = LocalDateTime.now();
+    }
+
+    @Override
+    public String toString() {
+        return "Comment{" +
+                "id=" + id +
+                ", text='" + text + '\'' +
+                ", created=" + created +
+                '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Comment)) return false;
+        Comment comment = (Comment) o;
+        return Objects.equals(text, comment.text) && Objects.equals(item, comment.item) && Objects.equals(author, comment.author);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(text, item, author);
     }
 }

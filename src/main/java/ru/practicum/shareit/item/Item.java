@@ -1,20 +1,26 @@
 package ru.practicum.shareit.item;
 
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
-import ru.practicum.shareit.request.ItemRequest;
+import lombok.Setter;
+import ru.practicum.shareit.Generated;
+import ru.practicum.shareit.ItemRequest.ItemRequest;
 import ru.practicum.shareit.user.User;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import java.util.Objects;
 
-@Data
+
 @AllArgsConstructor
 @NoArgsConstructor
+@Getter
+@Setter
 @Entity
 @Table(name = "item")
+@Generated
 public class Item {
 
     @Id
@@ -51,8 +57,45 @@ public class Item {
         this.request = request;
     }
 
+    public Item(String name, String description, Boolean available, ItemRequest request) {
+        this.name = name;
+        this.description = description;
+        this.available = available;
+        this.request = request;
+    }
+
+    public Item(User owner, String name, String description, Boolean available) {
+        this.owner = owner;
+        this.name = name;
+        this.description = description;
+        this.available = available;
+    }
 
     public Item(Long id) {
         this.id = id;
+    }
+
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Item)) return false;
+        Item item = (Item) o;
+        return Objects.equals(owner, item.owner) && Objects.equals(name, item.name) && Objects.equals(description, item.description) && Objects.equals(available, item.available) && Objects.equals(request, item.request);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(owner, name, description, available, request);
+    }
+
+    @Override
+    public String toString() {
+        return "Item{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", description='" + description + '\'' +
+                ", available=" + available +
+                '}';
     }
 }
